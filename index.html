@@ -600,7 +600,7 @@ input[aria-busy="true"]{background-image:linear-gradient(90deg,transparent,var(-
               <div class="field"><label for="cd-fa">Arabic font</label><input id="cd-fa" type="text" list="gf-arabic" autocomplete="off" spellcheck="false" placeholder="ابحث في خطوط Google">
                 <p class="fprev" id="cd-fa-prev" dir="rtl"></p></div>
             </div>
-            <p class="hint">Pick from the list or type any font name from <a href="https://fonts.google.com" target="_blank" rel="noopener">fonts.google.com</a>. Arabic fonts must support Arabic script.</p>
+            <p class="hint">Bilingual fonts such as Readex Pro, Cairo or IBM Plex Sans Arabic work in both boxes. Pick from the list or type any font name from <a href="https://fonts.google.com" target="_blank" rel="noopener">fonts.google.com</a>. Arabic fonts must support Arabic script.</p>
           </div>
           <div class="group checks">
             <label class="check"><input type="checkbox" id="cd-tint" data-ck="tintLogo"> Recolour logo to the text colour</label>
@@ -877,19 +877,30 @@ function loadGoogleFont(name){
   return gfCache[name];
 }
 const ffam=n=>`"${(n||'Figtree').replace(/"/g,'')}"`;
-function fontPicker(input,list,onPick,preview){
-  let t=0;
-  const go=async()=>{ const v=input.value.trim(); if(!v) return;
+// Arabic families that also carry a full Latin alphabet, so they work for English text too
+const GF_BILINGUAL=['IBM Plex Sans Arabic','Tajawal','Cairo','Almarai','Readex Pro','Alexandria','Rubik','Changa','El Messiri','Reem Kufi','Mada','Zain','Vazirmatn','Baloo Bhaijaan 2','Amiri','Markazi Text','Lemonada','Kufam','Noto Kufi Arabic'];
+const GF_EN_ALL=GF_LATIN.concat(GF_BILINGUAL.filter(f=>!GF_LATIN.includes(f)));
+function fontPicker(input,list,onPick,preview,current){
+  let t=0, seq=0;
+  const clearErr=()=>{ input.classList.remove('invalid'); if(preview&&preview.dataset.err){ delete preview.dataset.err; preview.textContent=''; } };
+  const showErr=msg=>{ input.classList.add('invalid'); if(preview){ preview.dataset.err=msg; preview.textContent=msg; } };
+  const go=async()=>{
+    const v=input.value.trim(); if(!v) return;
     const hit=list.find(f=>f.toLowerCase()===v.toLowerCase())||v;
-    if(!GF_OK.test(hit)){ input.classList.add('invalid'); return; }
-    input.classList.remove('invalid'); input.setAttribute('aria-busy','true');
-    const ok=await loadGoogleFont(hit); input.removeAttribute('aria-busy');
-    if(!ok){ input.classList.add('invalid'); if(preview) preview.dataset.err=`"${hit}" isn't on Google Fonts. Check the spelling at fonts.google.com.`; if(preview) preview.textContent=preview.dataset.err; return; }
-    if(input.value.trim().toLowerCase()===v.toLowerCase()) input.value=hit;
-    onPick(hit);
+    if(!GF_OK.test(hit)){ showErr('Use letters, numbers and spaces only.'); return; }
+    const my=++seq; input.setAttribute('aria-busy','true');
+    const ok=await loadGoogleFont(hit);
+    if(my!==seq) return;                         // a newer search has started: ignore this result
+    input.removeAttribute('aria-busy');
+    if(input.value.trim().toLowerCase()!==v.toLowerCase()) return;
+    if(!ok){ showErr(`"${hit}" isn't on Google Fonts. Check the spelling at fonts.google.com.`); return; }
+    clearErr(); input.value=hit; onPick(hit);
   };
-  input.addEventListener('input',()=>{ clearTimeout(t); t=setTimeout(go,list.some(f=>f.toLowerCase()===input.value.trim().toLowerCase())?0:700); });
+  input.addEventListener('input',()=>{ clearTimeout(t); seq++; input.removeAttribute('aria-busy'); clearErr();
+    const exact=list.some(f=>f.toLowerCase()===input.value.trim().toLowerCase());
+    t=setTimeout(go,exact?0:900); });
   input.addEventListener('change',()=>{ clearTimeout(t); go(); });
+  input.addEventListener('blur',()=>{ if(!input.value.trim()&&current){ clearTimeout(t); seq++; input.removeAttribute('aria-busy'); clearErr(); input.value=current(); onPick(current()); } });
 }
 const FONT='"Figtree", Arial, sans-serif';
 const frameFont=st=>`${ffam(st.frameFont)}, Arial, sans-serif`;
@@ -1435,7 +1446,7 @@ $('#ct-template').innerHTML=TPL.map(([v,l,s])=>`<button class="tile ctile" data-
 $('#ct-back').innerHTML=BACKS.map(([v,l,s])=>`<button class="tile ctile" data-cset="back" data-val="${v}" aria-pressed="false"><svg viewBox="0 0 36 22">${s}</svg><span>${l}</span></button>`).join('');
 $('#cd-pal').innerHTML=CPAL.map(([a,b,n])=>`<button data-cpal="${a},${b}" title="${n}" aria-label="${n} colours"><i style="background:${a}"></i><i style="background:${b}"></i></button>`).join('');
 $('#cd-size').innerHTML=Object.entries(SIZES).map(([k,v])=>`<option value="${k}">${v.label}</option>`).join('');
-$('#gf-latin').innerHTML=GF_LATIN.map(f=>`<option value="${f}"></option>`).join('');
+$('#gf-latin').innerHTML=GF_LATIN.map(f=>`<option value="${f}"></option>`).join('')+GF_BILINGUAL.filter(f=>!GF_LATIN.includes(f)).map(f=>`<option value="${f}" label="Arabic + English"></option>`).join('');
 $('#gf-arabic').innerHTML=GF_ARABIC.map(f=>`<option value="${f}"></option>`).join('');
 function fontPreviews(){
   const fl=$('#cd-fl-prev'), fa=$('#cd-fa-prev');
@@ -1443,8 +1454,8 @@ function fontPreviews(){
   fl.style.fontFamily=`${ffam(C.fontLatin)}, Arial, sans-serif`; fl.textContent=(C.nameEn||'Abdulaziz Alsheikh')+' · '+(C.titleEn||'Managing Partner');
   fa.style.fontFamily=`${ffam(C.fontArabic)}, Tahoma, sans-serif`; fa.textContent=(C.nameAr||'عبدالعزيز آل شيخ')+' · '+(C.titleAr||'شريك مؤسس');
 }
-fontPicker($('#cd-fl'),GF_LATIN,f=>{ C.fontLatin=f; cardUpdate(); },$('#cd-fl-prev'));
-fontPicker($('#cd-fa'),GF_ARABIC,f=>{ C.fontArabic=f; cardUpdate(); },$('#cd-fa-prev'));
+fontPicker($('#cd-fl'),GF_EN_ALL,f=>{ C.fontLatin=f; cardUpdate(); },$('#cd-fl-prev'),()=>C.fontLatin);
+fontPicker($('#cd-fa'),GF_ARABIC,f=>{ C.fontArabic=f; cardUpdate(); },$('#cd-fa-prev'),()=>C.fontArabic);
 $('#brand-btns').innerHTML=BRANDS.map(b=>`<button class="btn small" data-brand="${b.id}">Use ${b.name}</button>`).join('')+'<button class="btn small" id="brand-save">Save as my brand</button>';
 let myBrand=(()=>{ try{ return JSON.parse(store.get(CKEY+'.brand')); }catch(e){ return null; } })();
 function renderBrandBtns(){
@@ -1606,7 +1617,7 @@ async function cardBoot(){
 
 /* ---- frame font ---- */
 function framePrev(){ const p=$('#s-ffont-prev'); delete p.dataset.err; p.style.fontFamily=`${ffam(S.style.frameFont)}, Arial, sans-serif`; p.style.fontWeight='800'; p.textContent=S.style.frameText||'SCAN ME'; }
-fontPicker($('#s-ffont'),GF_LATIN,f=>{ S.style.frameFont=f; framePrev(); update(); },$('#s-ffont-prev'));
+fontPicker($('#s-ffont'),GF_EN_ALL,f=>{ S.style.frameFont=f; framePrev(); update(); },$('#s-ffont-prev'),()=>S.style.frameFont||'Figtree');
 /* ================= boot ================= */
 (async()=>{
   await setLogo(logoData,false);
