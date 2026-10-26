@@ -131,6 +131,9 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .chips button{border:2px solid var(--hair);background:var(--paper);border-radius:999px;padding:4px 10px;font:700 12px var(--f-body)}
 .chips button:hover{border-color:var(--line)}
 .dfoot{display:flex;justify-content:flex-end}
+.lbl-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.mini-sw{display:inline-flex;align-items:center;gap:6px;font:600 12px var(--f-body);color:var(--muted);text-transform:none;letter-spacing:0;cursor:pointer}
+.mini-sw input{width:28px;height:28px;border:2px solid var(--line);border-radius:7px;padding:0;background:none;cursor:pointer}
 
 /* preview */
 .preview{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px)}
@@ -380,8 +383,8 @@ footer{padding-block:16px 30px;font:500 12px var(--f-mono);color:var(--muted)}
 
           <div class="dpane" data-dpane="shape">
             <div class="field"><span class="lbl">Modules</span><div class="tiles" id="t-shape"></div></div>
-            <div class="field"><span class="lbl">Corner frame</span><div class="tiles" id="t-eyeFrame"></div></div>
-            <div class="field"><span class="lbl">Corner centre</span><div class="tiles" id="t-eyeBall"></div></div>
+            <div class="field"><div class="lbl-row"><span class="lbl">Corner frame</span><label class="mini-sw">Colour<input type="color" id="m-ef" data-c="eyeFrameColor"></label></div><div class="tiles" id="t-eyeFrame"></div></div>
+            <div class="field"><div class="lbl-row"><span class="lbl">Corner centre</span><label class="mini-sw">Colour<input type="color" id="m-eb" data-c="eyeBallColor"></label></div><div class="tiles" id="t-eyeBall"></div></div>
             <div class="group">
               <div class="row">
                 <div class="field"><label for="s-ecc">Damage tolerance</label>
@@ -409,7 +412,8 @@ footer{padding-block:16px 30px;font:500 12px var(--f-mono);color:var(--muted)}
               </div>
             </div>
             <div class="group">
-              <label class="check"><input type="checkbox" id="s-eyecustom" data-sc="eyeCustom"> Give the corners their own colours</label>
+              <div class="group-h"><h3>Corner colours</h3><button class="link-btn" id="eye-match">Match code colour</button></div>
+              <p class="hint">Colour the three big corner squares separately from the rest of the code.</p>
               <div class="colors" id="eyecolors">
                 <div class="field"><label for="c-ef">Corner frame</label><div class="swatch"><input id="c-ef" type="color" data-c="eyeFrameColor"><input type="text" id="c-ef-t" data-ct="eyeFrameColor" maxlength="7" aria-label="Corner frame hex"></div></div>
                 <div class="field"><label for="c-eb">Corner centre</label><div class="swatch"><input id="c-eb" type="color" data-c="eyeBallColor"><input type="text" id="c-eb-t" data-ct="eyeBallColor" maxlength="7" aria-label="Corner centre hex"></div></div>
@@ -873,7 +877,8 @@ function validate(el){
   if(!bad&&msg) msg.remove();
 }
 
-function syncColor(k){ const v=S.style[k]; $$(`[data-c="${k}"]`).forEach(e=>e.value=v); $$(`[data-ct="${k}"]`).forEach(e=>{ if(document.activeElement!==e) e.value=v.toUpperCase(); }); }
+const EYEK=['eyeFrameColor','eyeBallColor'];
+function syncColor(k){ const v=(!S.style.eyeCustom&&EYEK.includes(k))?S.style.fg:S.style[k]; $$(`[data-c="${k}"]`).forEach(e=>e.value=v); $$(`[data-ct="${k}"]`).forEach(e=>{ if(document.activeElement!==e) e.value=v.toUpperCase(); }); }
 function fillForm(){
   $$('[data-k]').forEach(el=>{const v=getP(S,el.dataset.k); if(el.type==='checkbox') el.checked=!!v; else el.value=v??''; validate(el);});
   ['phones','emails','websites','socials'].forEach(renderList); renderExtras();
@@ -892,7 +897,7 @@ function refreshDesignUI(){
   $$('#pmode button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.pmode===S.phone.mode));
   $('#f-fg2').hidden=st.fill==='solid'; $('#f-dir').hidden=st.fill!=='linear';
   $('#l-fg').textContent=st.fill==='solid'?'Code colour':'Gradient start';
-  $('#eyecolors').hidden=!st.eyeCustom;
+  $('#eye-match').hidden=!st.eyeCustom; EYEK.forEach(syncColor);
   $('#s-margin-v').textContent=`· ${st.margin}`; $('#s-logosize-v').textContent=`· ${st.logoSize}%`;
   $('#s-ecc').disabled=!!logoImg; if(logoImg) $('#s-ecc').value='H'; else $('#s-ecc').value=st.ecc;
   $('#ecc-hint').textContent=logoImg?'Locked to Max while a logo is added.':'Higher survives scratches and logos, but makes a denser code.';
@@ -1044,9 +1049,13 @@ document.addEventListener('input',e=>{
     if(el.dataset.li==='socials'&&el.dataset.f==='type') $(`#socials-${el.dataset.i}-value`).placeholder=SOCIAL[el.value].ph; update(); }
   else if(el.dataset.s){ S.style[el.dataset.s]=el.type==='range'?+el.value:el.value; update(); }
   else if(el.dataset.sc){ S.style[el.dataset.sc]=el.checked; update(); }
-  else if(el.dataset.c){ S.style[el.dataset.c]=el.value.toUpperCase(); syncColor(el.dataset.c); update(); }
-  else if(el.dataset.ct){ let v=el.value.trim(); if(!v.startsWith('#')) v='#'+v; if(/^#[0-9a-f]{6}$/i.test(v)){ S.style[el.dataset.ct]=v.toUpperCase(); syncColor(el.dataset.ct); update(); } }
+  else if(el.dataset.c){ setColor(el.dataset.c,el.value); }
+  else if(el.dataset.ct){ let v=el.value.trim(); if(!v.startsWith('#')) v='#'+v; if(/^#[0-9a-f]{6}$/i.test(v)) setColor(el.dataset.ct,v); }
 });
+function setColor(k,v){
+  if(EYEK.includes(k)&&!S.style.eyeCustom){ S.style.eyeCustom=true; EYEK.forEach(x=>S.style[x]=S.style.fg); }
+  S.style[k]=v.toUpperCase(); syncColor(k); update();
+}
 document.addEventListener('change',e=>{ const el=e.target;
   if(el.type==='checkbox'&&el.dataset.k){ setP(S,el.dataset.k,el.checked); update(); }
   if(el.dataset.ct) syncColor(el.dataset.ct); });
@@ -1068,6 +1077,7 @@ document.addEventListener('click',e=>{
   else if(d.ftext){ S.style.frameText=d.ftext; $('#s-ftext').value=d.ftext; update(); }
   else if(d.preset){ const p=PRESETS[+d.preset], undo=snapshot(); Object.assign(S.style,p.s,{transparent:false}); fillDesign(); update(); toast(`Applied ${p.name}`,undo); }
 });
+$('#eye-match').onclick=()=>{ const undo=snapshot(); S.style.eyeCustom=false; update(); toast('Corners now match the code colour',undo); };
 $('#clear-btn').onclick=()=>{ const undo=snapshot(); S.example=false; S[S.type]=EMPTY[S.type](); fillForm(); update(); toast('Form cleared',undo); };
 $('#reset-design').onclick=async()=>{ const undo=snapshot(); S.style=clone(DEFAULT_STYLE); await setLogo(null); fillDesign(); update(); toast('Design reset',undo); };
 document.addEventListener('focusin',e=>{ if(S.example&&e.target.closest('[data-pane]')&&e.target.matches('input,textarea')){ S.example=false; $('#example-chip').hidden=true; save(); } });
