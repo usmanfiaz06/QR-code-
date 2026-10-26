@@ -224,6 +224,10 @@ input[dir="rtl"],textarea[dir="rtl"]{font-family:"IBM Plex Sans Arabic",var(--f-
 .cardfig figcaption{display:flex;justify-content:space-between;gap:8px;font:700 11px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .cardfig img{width:100%;height:auto;display:block;border-radius:3px;box-shadow:0 1px 1px rgba(11,15,26,.1),0 12px 26px rgba(11,15,26,.18)}
 .checks{display:grid;gap:8px}
+.fprev{margin:0;padding:8px 12px;border:2px dashed var(--hair);border-radius:10px;font-size:20px;line-height:1.3;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:44px}
+.fprev[data-err]{font:500 13px var(--f-body);color:var(--bad);white-space:normal}
+input[aria-busy="true"]{background-image:linear-gradient(90deg,transparent,var(--accent-soft),transparent);background-size:200% 100%;animation:busy 1s linear infinite}
+@keyframes busy{to{background-position:-200% 0}}
 .share-out{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
 @media (max-width:960px){
   .bench,.hero{grid-template-columns:minmax(0,1fr)}
@@ -469,6 +473,8 @@ input[dir="rtl"],textarea[dir="rtl"]{font-family:"IBM Plex Sans Arabic",var(--f-
           <div class="dpane" data-dpane="frame">
             <div class="field"><span class="lbl">Frame style</span><div class="tiles" id="t-frame"></div></div>
             <div id="frame-opts" class="pane">
+              <div class="field"><label for="s-ffont">Frame font</label><input id="s-ffont" type="text" list="gf-latin" autocomplete="off" spellcheck="false" placeholder="Search Google Fonts">
+                <p class="fprev" id="s-ffont-prev">SCAN ME</p></div>
               <div class="field"><label for="s-ftext">Call to action</label><input id="s-ftext" type="text" data-s="frameText" maxlength="28" placeholder="SCAN ME">
                 <div class="chips" id="ftchips"></div></div>
               <div class="colors">
@@ -589,9 +595,12 @@ input[dir="rtl"],textarea[dir="rtl"]{font-family:"IBM Plex Sans Arabic",var(--f-
           </div>
           <div class="group">
             <div class="row">
-              <div class="field"><label for="cd-fl">English font</label><select id="cd-fl" data-ck="fontLatin"></select></div>
-              <div class="field"><label for="cd-fa">Arabic font</label><select id="cd-fa" data-ck="fontArabic"></select></div>
+              <div class="field"><label for="cd-fl">English font</label><input id="cd-fl" type="text" list="gf-latin" autocomplete="off" spellcheck="false" placeholder="Search Google Fonts">
+                <p class="fprev" id="cd-fl-prev"></p></div>
+              <div class="field"><label for="cd-fa">Arabic font</label><input id="cd-fa" type="text" list="gf-arabic" autocomplete="off" spellcheck="false" placeholder="ابحث في خطوط Google">
+                <p class="fprev" id="cd-fa-prev" dir="rtl"></p></div>
             </div>
+            <p class="hint">Pick from the list or type any font name from <a href="https://fonts.google.com" target="_blank" rel="noopener">fonts.google.com</a>. Arabic fonts must support Arabic script.</p>
           </div>
           <div class="group checks">
             <label class="check"><input type="checkbox" id="cd-tint" data-ck="tintLogo"> Recolour logo to the text colour</label>
@@ -649,6 +658,7 @@ input[dir="rtl"],textarea[dir="rtl"]{font-family:"IBM Plex Sans Arabic",var(--f-
   <button class="btn small" id="mbar-view">Preview</button>
   <button class="btn small primary" id="mbar-dl">PNG</button>
 </div>
+<datalist id="gf-latin"></datalist><datalist id="gf-arabic"></datalist>
 <div class="toast" id="toast" role="status" aria-live="polite"><span id="toast-t"></span><button id="toast-b" hidden>Undo</button></div>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
@@ -662,7 +672,7 @@ if(qrcode.stringToBytesFuncs&&qrcode.stringToBytesFuncs['UTF-8']) qrcode.stringT
 /* ================= state ================= */
 const DEFAULT_STYLE={shape:'rounded',eyeFrame:'rounded',eyeBall:'rounded',fill:'solid',fg:'#0B0F1A',fg2:'#1F3BFF',dir:'diag',
   bg:'#FFFFFF',transparent:false,eyeCustom:true,eyeFrameColor:'#1F3BFF',eyeBallColor:'#0B0F1A',ecc:'M',margin:4,size:'1024',
-  logoSize:22,logoPlate:true,logoClear:true,frame:'none',frameText:'SCAN ME',frameColor:'#0B0F1A',frameTextColor:'#FFFFFF'};
+  logoSize:22,logoPlate:true,logoClear:true,frame:'none',frameText:'SCAN ME',frameColor:'#0B0F1A',frameTextColor:'#FFFFFF',frameFont:'Figtree'};
 const EMPTY={
   url:()=>({value:''}), text:()=>({value:''}),
   wifi:()=>({ssid:'',pass:'',sec:'WPA',hidden:false}),
@@ -846,7 +856,43 @@ function eyeBallPath(x,y,shape,pos){
 
 /* ================= model ================= */
 const mctx=document.createElement('canvas').getContext('2d');
+/* ================= Google Fonts ================= */
+const GF_LATIN=['Mulish','Montserrat','Figtree','Inter','Poppins','Roboto','Open Sans','Lato','Nunito','Nunito Sans','Raleway','Work Sans','DM Sans','Manrope','Outfit','Plus Jakarta Sans','Sora','Urbanist','Lexend','Space Grotesk','Rubik','Karla','Barlow','Josefin Sans','Quicksand','Comfortaa','Archivo','Red Hat Display','Libre Franklin','Source Sans 3','IBM Plex Sans','Noto Sans','PT Sans','Fira Sans','Cabin','Oswald','Bebas Neue','Anton','Jost','Kumbh Sans','Hanken Grotesk','Public Sans','Albert Sans','Onest','Be Vietnam Pro','Epilogue','Syne','Unbounded','Playfair Display','Merriweather','Lora','Libre Baskerville','Cormorant Garamond','EB Garamond','DM Serif Display','Prata','Bodoni Moda','Crimson Pro','Spectral','Fraunces'];
+const GF_ARABIC=['IBM Plex Sans Arabic','Tajawal','Noto Kufi Arabic','Noto Sans Arabic','Noto Naskh Arabic','Cairo','Almarai','Readex Pro','Alexandria','Rubik','Changa','El Messiri','Reem Kufi','Mada','Zain','Vazirmatn','Baloo Bhaijaan 2','Amiri','Scheherazade New','Markazi Text','Lateef','Harmattan','Kufam','Lemonada','Lalezar','Mirza','Rakkas','Aref Ruqaa'];
+const GF_OK=/^[A-Za-z0-9][A-Za-z0-9 ]{1,48}$/;
+const gfCache={};
+function loadGoogleFont(name){
+  name=(name||'').trim(); if(!GF_OK.test(name)) return Promise.resolve(false);
+  if(gfCache[name]) return gfCache[name];
+  const fam=encodeURIComponent(name).replace(/%20/g,'+');
+  const tiers=[`:wght@400;500;700;800`,`:wght@400;700`,''];
+  gfCache[name]=(async()=>{
+    for(const t of tiers){
+      const ok=await new Promise(res=>{ const l=document.createElement('link'); l.rel='stylesheet'; l.href=`https://fonts.googleapis.com/css2?family=${fam}${t}&display=swap`;
+        l.onload=()=>res(true); l.onerror=()=>{ l.remove(); res(false); }; document.head.appendChild(l); });
+      if(ok){ if(document.fonts){ await Promise.all([400,700,800].map(w=>document.fonts.load(`${w} 24px "${name}"`,'Aa عربي').catch(()=>{}))); } return true; }
+    }
+    delete gfCache[name]; return false;
+  })();
+  return gfCache[name];
+}
+const ffam=n=>`"${(n||'Figtree').replace(/"/g,'')}"`;
+function fontPicker(input,list,onPick,preview){
+  let t=0;
+  const go=async()=>{ const v=input.value.trim(); if(!v) return;
+    const hit=list.find(f=>f.toLowerCase()===v.toLowerCase())||v;
+    if(!GF_OK.test(hit)){ input.classList.add('invalid'); return; }
+    input.classList.remove('invalid'); input.setAttribute('aria-busy','true');
+    const ok=await loadGoogleFont(hit); input.removeAttribute('aria-busy');
+    if(!ok){ input.classList.add('invalid'); if(preview) preview.dataset.err=`"${hit}" isn't on Google Fonts. Check the spelling at fonts.google.com.`; if(preview) preview.textContent=preview.dataset.err; return; }
+    if(input.value.trim().toLowerCase()===v.toLowerCase()) input.value=hit;
+    onPick(hit);
+  };
+  input.addEventListener('input',()=>{ clearTimeout(t); t=setTimeout(go,list.some(f=>f.toLowerCase()===input.value.trim().toLowerCase())?0:700); });
+  input.addEventListener('change',()=>{ clearTimeout(t); go(); });
+}
 const FONT='"Figtree", Arial, sans-serif';
+const frameFont=st=>`${ffam(st.frameFont)}, Arial, sans-serif`;
 function build(s,logoImg){
   const payload=buildPayload(s); if(!payload) return {empty:true,payload:''};
   const st=s.style, ecc=logoImg?'H':st.ecc;
@@ -866,7 +912,7 @@ function build(s,logoImg){
     const b=f==='outline'?1.4:1.3, L=Math.max(6,t*.2);
     W=t+2*b; H=t+2*b+L-(f==='outline'?0:b);
     qx=b; qy=f==='top'?L:b;
-    let fs=L*.44; mctx.font=`800 100px ${FONT}`; const w100=Math.max(1,mctx.measureText(txt||' ').width)/100*1.04;
+    let fs=L*.44; mctx.font=`800 100px ${frameFont(st)}`; const w100=Math.max(1,mctx.measureText(txt||' ').width)/100*1.04;
     fs=Math.min(fs,(W*.84)/w100);
     const cy=f==='top'?L/2+b*.2:(f==='outline'?t+2*b+L*.42:t+b+(L-b)/2+b*.5);
     label={text:txt,x:W/2,y:cy,fs,b,L};
@@ -909,7 +955,7 @@ function renderCanvas(M,s,logoImg,px,solidBg){
     ctx.drawImage(logoImg,b.x+p+(sz-w)/2,b.y+p+(sz-h)/2,w,h); }
   ctx.restore();
   if(M.label&&M.label.text){ const L=M.label;
-    ctx.fillStyle=M.frame==='outline'?st.frameColor:st.frameTextColor; ctx.font=`800 ${L.fs}px ${FONT}`; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillStyle=M.frame==='outline'?st.frameColor:st.frameTextColor; ctx.font=`800 ${L.fs}px ${frameFont(st)}`; ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillText(L.text,L.x,L.y); }
   return cv;
 }
@@ -935,7 +981,7 @@ function renderSVG(M,s,logoData,px){
     out.push(`<image href="${logoData}" x="${b.x+pd}" y="${b.y+pd}" width="${b.s-2*pd}" height="${b.s-2*pd}" preserveAspectRatio="xMidYMid meet"/>`); }
   out.push('</g>');
   if(M.label&&M.label.text){ const L=M.label;
-    out.push(`<text x="${L.x}" y="${L.y}" font-family='Figtree, Arial, sans-serif' font-weight="800" font-size="${L.fs}" text-anchor="middle" dominant-baseline="central" fill="${M.frame==='outline'?st.frameColor:st.frameTextColor}">${xesc(L.text)}</text>`); }
+    out.push(`<text x="${L.x}" y="${L.y}" font-family='${xesc(st.frameFont||'Figtree')}, Arial, sans-serif' font-weight="800" font-size="${L.fs}" text-anchor="middle" dominant-baseline="central" fill="${M.frame==='outline'?st.frameColor:st.frameTextColor}">${xesc(L.text)}</text>`); }
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${M.W} ${M.H}" width="${Math.round(M.W*sc)}" height="${Math.round(M.H*sc)}">${out.join('')}</svg>`;
 }
 
@@ -1029,7 +1075,7 @@ function fillForm(){
   fillDesign(); setType(S.type,false); $('#example-chip').hidden=!S.example;
 }
 function fillDesign(){
-  const st=S.style;
+  const st=S.style; if(document.activeElement!==$('#s-ffont')) $('#s-ffont').value=st.frameFont||'Figtree';
   $$('[data-s]').forEach(el=>{ if(document.activeElement!==el) el.value=st[el.dataset.s]; });
   $$('[data-sc]').forEach(el=>el.checked=!!st[el.dataset.sc]);
   ['fg','fg2','bg','eyeFrameColor','eyeBallColor','frameColor','frameTextColor'].forEach(syncColor);
@@ -1048,7 +1094,7 @@ function refreshDesignUI(){
   $('#logo-opts').hidden=!logoImg;
   const lt=$('#lthumb'); if(logoData&&logoImg){ lt.style.backgroundImage=`url("${logoData}")`; lt.textContent=''; $('#drop-t').textContent='Replace logo'; $('#drop-s').textContent='Drop a new image here or click to choose another file.'; }
   else { lt.style.backgroundImage=''; lt.textContent='+'; $('#drop-t').textContent='Drop your logo here or click to upload'; $('#drop-s').textContent='PNG, JPG or SVG. A square logo with a transparent background looks best.'; }
-  $('#frame-opts').hidden=st.frame==='none'; $('#f-ftc').hidden=st.frame==='outline';
+  $('#frame-opts').hidden=st.frame==='none'; if(!$('#s-ffont-prev').dataset.err) framePrev(); $('#f-ftc').hidden=st.frame==='outline';
   $('#sms-field').hidden=S.phone.mode!=='sms';
   $$('.dtab').forEach(b=>b.setAttribute('aria-selected',b.dataset.dtab===dtab));
   $$('[data-dpane]').forEach(p=>p.hidden=p.dataset.dpane!==dtab);
@@ -1105,7 +1151,7 @@ async function download(blob,name){
   try{ const u=URL.createObjectURL(blob),a=document.createElement('a'); a.href=u; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),4000); toast('Downloading '+name); }
   catch(e){ toast('Download blocked. Right-click or long-press the code to save it.'); }
 }
-const fontsReady=()=>document.fonts&&document.fonts.load?Promise.all([document.fonts.load(`800 20px Figtree`)]).catch(()=>{}):Promise.resolve();
+const fontsReady=()=>loadGoogleFont(S.style.frameFont||'Figtree').then(()=>document.fonts&&document.fonts.load(`800 20px ${ffam(S.style.frameFont)}`)).catch(()=>{});
 const canvasBlob=(cv,type,q)=>new Promise(r=>cv.toBlob(r,type,q));
 async function exportPNG(){ if(!current) return; await fontsReady(); const px=+S.style.size; download(await canvasBlob(renderCanvas(current,S,logoImg,px),'image/png'),`${fileBase()}-${px}.png`); }
 $('#dl-png').onclick=exportPNG; $('#mbar-dl').onclick=exportPNG;
@@ -1233,15 +1279,14 @@ const CARD_SEED=null;
 const BRAND_MADA={"template": "split", "back": "brand", "size": "us", "bg": "#F2ECE2", "ink": "#1E352D", "fontLatin": "Mulish", "fontArabic": "IBM Plex Sans Arabic", "tintLogo": true, "qrWhite": true, "qrShow": true, "qrSource": "vcard", "guides": false, "dpi": "600", "bleed": true, "marks": true, "company": "Mada Trips", "website": "www.madatrips.sa", "address": "", "tagEn": "Future Together", "tagAr": "ابـــعد معـــا", "logo": "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iTGF5ZXJfMiIgZGF0YS1uYW1lPSJMYXllciAyIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTguOTkgMjM5LjE4IiB3aWR0aD0iMjU5IiBoZWlnaHQ9IjIzOSI+CiAgPGRlZnM+CiAgICA8c3R5bGU+CiAgICAgIC5jbHMtMSB7CiAgICAgICAgZmlsbDogIzFlMzUyZDsKICAgICAgfQogICAgPC9zdHlsZT4KICA8L2RlZnM+CiAgPGcgaWQ9IkxheWVyXzEtMiIgZGF0YS1uYW1lPSJMYXllciAxIj4KICAgIDxnPgogICAgICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0yNTQuNjUsMTU3LjM2YzQuODMsNy4yNyw0Ljc0LDE3LjMzLDIuODMsMjUuNzktMTAuNSw1LTIyLjQ4LDQuMy0zMC43My0zLjk4LTIuOTQsMy40NS02LjY1LDUuNTctMTEuMyw1LjU3bC0xNDEuNTgtLjAyYy03Ljg1LDAtMTIuOTYtNS4xNi0xMi45Ny0xMi45OGwtLjA0LTQ3LjksOS45Ni0uMDIuMDMsNDYuNjZjMCwyLjM5LDEuNiw0LjQ1LDQuMjUsNC40NWwxMzkuNTQuMDJjMi4xMywwLDQuMS0uNTIsNS4xNC0yLjE4bDQuNC03LjA3YzIuNTMtNC4wNiw0Ljk1LTguMDcsOC40OC0xMS4yNCw2Ljc2LTYuMDYsMTYuOS00Ljc2LDIxLjk5LDIuOTFaTTI0OS41MiwxNzYuMzljLjU2LTYuODgtMS45OS0xNS41OC03LjctMTUuNzQtNC4xNi0uMTEtNy42Nyw2LjU2LTEwLjI5LDExLjEsNC45NSw0LjQ1LDExLjUxLDUuNjQsMTcuOTgsNC42NFoiLz4KICAgICAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMTkuNzMsMTg0Ljc1bC0xLjgyLTkuNzgsMjMuOS0uMDJjLTEuNTMtOC45MS02LjI4LTE2LjI4LTEzLjIzLTIxLjk5bDcuMzEtOS4yM2M0LjA0LDQuMjIsNy41NSw4LjY2LDEwLjU3LDEzLjcsNC44Myw4LjczLDUuNTgsMTcuMzUsNC4xOSwyNy4zMWgtMzAuOTJaIi8+CiAgICAgIDxyZWN0IGNsYXNzPSJjbHMtMSIgeT0iMTIzLjgyIiB3aWR0aD0iOS45NCIgaGVpZ2h0PSI2MC45MiIvPgogICAgICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xNi4wNiwyMzguODJsLjEtMTMuNzQtNS4wOSw3Ljg0Yy0uNTkuMi0xLjkyLjE3LTIuNDgtLjA3bC00Ljg3LTcuNTUtLjAyLDEzLjU2SC4wN3MwLTIwLjUxLDAtMjAuNTFoMy41NXM2LjMxLDEwLjM1LDYuMzEsMTAuMzVsNi40OC0xMC4zNWgzLjM3czAsMjAuNDUsMCwyMC40NWwtMy43LjAzWiIvPgogICAgICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik03OS42MywyMzQuMzJjLTEuNjgsMi43My00LjM5LDQuNDMtNy41NSw0LjQ2bC04Ljg2LjA2di0yMC41OXM4Ljk3LjA5LDguOTcuMDljMy40NC4wNCw2LjIxLDIuMDQsNy43LDUuMDIsMS41NywzLjQ4LDEuNTEsNy4zNi0uMjYsMTAuOTZaTTc3LjMyLDIyOC40Yy0uMDktMi45Mi0xLjQxLTYuMjctNC40My02LjM2bC02LS4xOXYxMy40NHM0LjQ5LS4wMiw0LjQ5LS4wMmMzLjgtLjAyLDYuMDYtMi44OCw1Ljk1LTYuODdaIi8+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTE3Ny45MSwyMzguOTZsLTQuMjMtNy40OS00LjIyLS4xNy0uMDIsNy41My0zLjY2LS4wNXYtMjAuNDdzOC4xOC0uMDcsOC4xOC0uMDdjMy4yMS0uMDMsNS45NiwxLjY3LDYuODksNC41NCwxLDMuMS0uMzUsNi4yNi0zLjM3LDcuODlsNC42Nyw4LjA2LTQuMjQuMjNaTTE3NS41NSwyMjcuNjFjMS42My0uMDYsMi4xMi0yLjMyLDEuODYtMy4zOS0uMy0xLjI0LTEuNTYtMi4zNi0zLjAxLTIuMzdsLTQuOTctLjAzLjA0LDUuOTksNi4wOC0uMjFaIi8+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTEwNS4yMSwyMzMuOTRsLTguMDUtLjA3LTEuODksNC45My0zLjc2LjAzLDcuOTQtMjAuNSwzLjYxLjAyLDcuODcsMjAuNWgtMy44OXMtMS44My00LjkxLTEuODMtNC45MVpNMTAzLjc0LDIzMC4zMWwtMi41NC03LjI2LTIuNjgsNy4yNyw1LjIzLS4wMloiLz4KICAgICAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNNDUuNTEsMjMzLjkybC04LjA4LS4wMy0xLjg2LDQuOTItMy43Ny4wNSw3Ljk0LTIwLjUxLDMuNjEtLjAyLDcuODgsMjAuNTFoLTMuOTFzLTEuODEtNC45Mi0xLjgxLTQuOTJaTTQ0LjA1LDIzMC4zMWwtMi41OC03LjI3LTIuNjUsNy4yOSw1LjIzLS4wMloiLz4KICAgICAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMjU2Ljg3LDIzNy4zN2MtNC4zMiwzLjE4LTEwLjM4LDIuMDUtMTMuMjktMi40M2wyLjUxLTMuMDFjMS45MSwzLjUsNS4yNSw1LjA0LDguNTksMi45Mi40OC0uMzEuODMtMS42NC42LTIuMTdzLTEuMTEtMS41Mi0xLjY5LTEuNjlsLTQuODgtMS40NmMtMi44My0uODUtNC4zMS0zLjQ2LTQuMDktNi4wNS4yNS0yLjg5LDIuNTctNC44OCw1LjQ4LTUuMzQsMy41My0uNTUsNy4wNS40NSw4Ljc4LDMuNzJsLTIuNTEsMi40OGMtMS41Ny0yLjQzLTMuODktMy42Ny02LjcxLTIuNjItLjU5LjIyLTEuMzgsMS4zOS0xLjQyLDItLjA1LjcuODUsMi4wMiwxLjYsMi4yNWw1LjE5LDEuNjJjMS44My41NywzLjUzLDIuMzUsMy44MywzLjg2LjQyLDIuMTEtLjA2LDQuNS0xLjk4LDUuOTFaIi8+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTIyMS4zNiwyMzEuMTNsLS4wNSw3LjY4LTMuNjYtLjAzdi0yMC41M3M5LjM2LjE2LDkuMzYuMTZjMy4xNC4wNSw1LjE3LDMuMzUsNS4yMyw2LjA3LjA3LDMuMDktMS44OSw2LjQtNS4yNSw2LjQ5bC01LjY0LjE2Wk0yMjcuMTYsMjI3LjNjLjg1LS4wNCwxLjQ2LTIuMDIsMS40MS0yLjc3LS4wNS0uNzUtLjc1LTIuNDctMS41Ni0yLjUxbC01LjY4LS4yM3Y1LjhzNS44NC0uMjksNS44NC0uMjlaIi8+CiAgICAgIDxwb2x5Z29uIGNsYXNzPSJjbHMtMSIgcG9pbnRzPSIyMDQuMTQgMjM4Ljg0IDE5NC4wOSAyMzguODUgMTk0LjAzIDIzNS4zOSAxOTcuMjcgMjM1LjM2IDE5Ny4yOCAyMjEuNyAxOTQuMDQgMjIxLjYgMTk0LjA4IDIxOC4yNyAyMDQuMTMgMjE4LjI3IDIwNC4xNyAyMjEuNjQgMjAwLjk0IDIyMS42NCAyMDAuOTQgMjM1LjM2IDIwNC4xOCAyMzUuMzkgMjA0LjE0IDIzOC44NCIvPgogICAgICA8cG9seWdvbiBjbGFzcz0iY2xzLTEiIHBvaW50cz0iMTQ3LjYxIDIzOC43OSAxNDMuOTQgMjM4Ljg0IDE0My45NSAyMjEuODUgMTM4LjMzIDIyMS44MyAxMzguMzUgMjE4LjI4IDE1My4zNyAyMTguMjcgMTUzLjM5IDIyMS44NCAxNDcuNiAyMjEuODIgMTQ3LjYxIDIzOC43OSIvPgogICAgPC9nPgogICAgPGc+CiAgICAgIDxnPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTEwNy41OSw2MS4yNmMtLjEzLjE2LS4yOS4zMi0uNDMuNDctLjI2LjI4LS42MS41OC0xLjAzLjg5LTEuNDksMS4xLTMuMjQsMS44Mi01LjA2LDIuMTdsLTQwLjgzLDcuOSw1LTExLjksNDIuMzYuNDZaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMTM2Ljk2LDBsLTUuMTIsNDMuNjNjLS43Ny0uMS0xLjU1LS4xNC0yLjM0LS4xNHMtMS41Ny4wNS0yLjM0LjE0TDEyMi4wMywwaDE0LjkyWiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTEyMS4xNyw0NS40Yy0xLjYxLjc4LTMuMDgsMS43OC00LjQsMi45NmwtMjYuNTUtMjQuNjUsMTAuNy04Ljg3LDIwLjI1LDMwLjU2WiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTc5LjE1LDM3LjA1bDMzLjk5LDE1LjcyYy0uNjcsMS4xMi0xLjU0LDIuNC0yLjIzLDMuNDdsLTM4LjkyLTYuNjIsNy4xNi0xMi41N1oiLz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xNTEuNCw2MS4yNmMuMTMuMTYuMjkuMzIuNDMuNDcuMjYuMjguNjEuNTgsMS4wMy44OSwxLjQ5LDEuMSwzLjI0LDEuODIsNS4wNiwyLjE3bDQwLjgzLDcuOS01LTExLjktNDIuMzYuNDZaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMTM3LjgyLDQ1LjRjMS42MS43OCwzLjA4LDEuNzgsNC40LDIuOTZsMjYuNTUtMjQuNjUtMTAuNy04Ljg3LTIwLjI1LDMwLjU2WiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTE3OS44NCwzNy4wNWwtMzMuOTksMTUuNzJjLjY3LDEuMTIsMS41NCwyLjQsMi4yMywzLjQ3bDM4LjkyLTYuNjItNy4xNi0xMi41N1oiLz4KICAgICAgPC9nPgogICAgICA8Zz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xMjYuNTQsNjQuMDVsLS4yMy45NC02Ljg3LDI3Ljc4aC0xOS42NGwyMi40Ny0yNy43OC4wMi0uMDJjLjQ3LS41OSwxLjE4LS45MiwxLjkzLS45MmgyLjMzWiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTE1OS4yLDkyLjc2aC0xOS42M2wtNi44Ny0yNy43OC0uMjMtLjk0aDIuMzNjLjc1LDAsMS40Ni4zMywxLjkzLjkybC4wMi4wMiwyMi40NiwyNy43OFoiLz4KICAgICAgPC9nPgogICAgPC9nPgogIDwvZz4KPC9zdmc+", "mark": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjYwIDAgMTM5LjMgOTIuOCIgd2lkdGg9IjEzOSIgaGVpZ2h0PSI5MyI+PGcgZmlsbD0iIzFlMzUyZCI+PHBhdGggZD0iTTEwNy41OSw2MS4yNmMtLjEzLjE2LS4yOS4zMi0uNDMuNDctLjI2LjI4LS42MS41OC0xLjAzLjg5LTEuNDksMS4xLTMuMjQsMS44Mi01LjA2LDIuMTdsLTQwLjgzLDcuOSw1LTExLjksNDIuMzYuNDZaIi8+PHBhdGggZD0iTTEzNi45NiwwbC01LjEyLDQzLjYzYy0uNzctLjEtMS41NS0uMTQtMi4zNC0uMTRzLTEuNTcuMDUtMi4zNC4xNEwxMjIuMDMsMGgxNC45MloiLz48cGF0aCBkPSJNMTIxLjE3LDQ1LjRjLTEuNjEuNzgtMy4wOCwxLjc4LTQuNCwyLjk2bC0yNi41NS0yNC42NSwxMC43LTguODcsMjAuMjUsMzAuNTZaIi8+PHBhdGggZD0iTTc5LjE1LDM3LjA1bDMzLjk5LDE1LjcyYy0uNjcsMS4xMi0xLjU0LDIuNC0yLjIzLDMuNDdsLTM4LjkyLTYuNjIsNy4xNi0xMi41N1oiLz48cGF0aCBkPSJNMTUxLjQsNjEuMjZjLjEzLjE2LjI5LjMyLjQzLjQ3LjI2LjI4LjYxLjU4LDEuMDMuODksMS40OSwxLjEsMy4yNCwxLjgyLDUuMDYsMi4xN2w0MC44Myw3LjktNS0xMS45LTQyLjM2LjQ2WiIvPjxwYXRoIGQ9Ik0xMzcuODIsNDUuNGMxLjYxLjc4LDMuMDgsMS43OCw0LjQsMi45NmwyNi41NS0yNC42NS0xMC43LTguODctMjAuMjUsMzAuNTZaIi8+PHBhdGggZD0iTTE3OS44NCwzNy4wNWwtMzMuOTksMTUuNzJjLjY3LDEuMTIsMS41NCwyLjQsMi4yMywzLjQ3bDM4LjkyLTYuNjItNy4xNi0xMi41N1oiLz48cGF0aCBkPSJNMTI2LjU0LDY0LjA1bC0uMjMuOTQtNi44NywyNy43OGgtMTkuNjRsMjIuNDctMjcuNzguMDItLjAyYy40Ny0uNTksMS4xOC0uOTIsMS45My0uOTJoMi4zM1oiLz48cGF0aCBkPSJNMTU5LjIsOTIuNzZoLTE5LjYzbC02Ljg3LTI3Ljc4LS4yMy0uOTRoMi4zM2MuNzUsMCwxLjQ2LjMzLDEuOTMuOTJsLjAyLjAyLDIyLjQ2LDI3Ljc4WiIvPjwvZz48L3N2Zz4="};
 const CKEY='qrforge.card.v1';
 const SIZES={us:{label:'3.5 × 2 in · US standard',w:88.9,h:50.8},eu:{label:'85 × 55 mm · Europe',w:85,h:55},gulf:{label:'90 × 50 mm · Gulf & Asia',w:90,h:50},w90:{label:'90 × 55 mm',w:90,h:55}};
-const LATIN={Mulish:'"Mulish"',Montserrat:'"Montserrat"',Figtree:'"Figtree"'};
-const ARABIC={'IBM Plex Sans Arabic':'"IBM Plex Sans Arabic"',Tajawal:'"Tajawal"','Noto Kufi Arabic':'"Noto Kufi Arabic"'};
+
 const PERSON=['nameEn','nameAr','titleEn','titleAr','phone','email'];
 const CARD_DEFAULT={template:'split',back:'brand',size:'us',bg:'#F2ECE2',ink:'#1E352D',fontLatin:'Mulish',fontArabic:'IBM Plex Sans Arabic',
   tintLogo:true,qrWhite:true,qrShow:true,qrSource:'vcard',guides:false,dpi:'600',bleed:true,marks:true,
   nameEn:'',nameAr:'',titleEn:'',titleAr:'',company:'',phone:'',email:'',website:'',address:'',tagEn:'',tagAr:'',logo:null,mark:null,example:false};
 function cardExample(){ return Object.assign({},CARD_DEFAULT,{example:true,nameEn:'Alex Rivera',nameAr:'أليكس ريفيرا',titleEn:'Creative Director',titleAr:'المدير الإبداعي',
   company:'Northwind Studio',phone:'+971 50 123 4567',email:'alex@northwind.studio',website:'www.northwind.studio',tagEn:'Design that travels',tagAr:'تصميم يسافر'}); }
-const normCard=c=>{ const o=Object.assign({},CARD_DEFAULT,c||{}); if(!SIZES[o.size]) o.size='us'; if(!LATIN[o.fontLatin]) o.fontLatin='Mulish'; if(!ARABIC[o.fontArabic]) o.fontArabic='IBM Plex Sans Arabic'; return o; };
+const normCard=c=>{ const o=Object.assign({},CARD_DEFAULT,c||{}); if(!SIZES[o.size]) o.size='us'; if(!GF_OK.test(o.fontLatin||'')) o.fontLatin='Mulish'; if(!GF_OK.test(o.fontArabic||'')) o.fontArabic='IBM Plex Sans Arabic'; return o; };
 const BRANDS=[];
 if(BRAND_MADA) BRANDS.push({id:'mada',name:'Mada Trips',data:BRAND_MADA});
 let C=(()=>{ try{ const c=JSON.parse(store.get(CKEY)); if(c) return normCard(c); }catch(e){} return CARD_SEED?normCard(CARD_SEED):cardExample(); })();
@@ -1249,9 +1294,10 @@ function saveCard(){ if(!store.set(CKEY,JSON.stringify(C))){ /* logo too big for
 
 const IMGS={};
 async function cimg(src){ if(!src) return null; if(!(src in IMGS)) IMGS[src]=await loadImg(src); return IMGS[src]; }
-const cfont=(kind,w,s)=>kind==='ar'?`${w} ${s}px ${ARABIC[C.fontArabic]}, "Noto Sans Arabic", Tahoma, sans-serif`:`${w} ${s}px ${LATIN[C.fontLatin]}, Arial, sans-serif`;
+const cfont=(kind,w,s)=>kind==='ar'?`${w} ${s}px ${ffam(C.fontArabic)}, "Noto Sans Arabic", Tahoma, sans-serif`:`${w} ${s}px ${ffam(C.fontLatin)}, Arial, sans-serif`;
 async function prepCard(){
-  const lf=LATIN[C.fontLatin], af=ARABIC[C.fontArabic];
+  await Promise.all([loadGoogleFont(C.fontLatin),loadGoogleFont(C.fontArabic)]);
+  const lf=ffam(C.fontLatin), af=ffam(C.fontArabic);
   await Promise.all([cimg(C.logo),cimg(C.mark),
     ...[400,500,700,800].map(w=>document.fonts?document.fonts.load(`${w} 20px ${lf}`).catch(()=>{}):0),
     ...[400,700].map(w=>document.fonts?document.fonts.load(`${w} 20px ${af}`,'عربي').catch(()=>{}):0)]);
@@ -1389,8 +1435,16 @@ $('#ct-template').innerHTML=TPL.map(([v,l,s])=>`<button class="tile ctile" data-
 $('#ct-back').innerHTML=BACKS.map(([v,l,s])=>`<button class="tile ctile" data-cset="back" data-val="${v}" aria-pressed="false"><svg viewBox="0 0 36 22">${s}</svg><span>${l}</span></button>`).join('');
 $('#cd-pal').innerHTML=CPAL.map(([a,b,n])=>`<button data-cpal="${a},${b}" title="${n}" aria-label="${n} colours"><i style="background:${a}"></i><i style="background:${b}"></i></button>`).join('');
 $('#cd-size').innerHTML=Object.entries(SIZES).map(([k,v])=>`<option value="${k}">${v.label}</option>`).join('');
-$('#cd-fl').innerHTML=Object.keys(LATIN).map(k=>`<option>${k}</option>`).join('');
-$('#cd-fa').innerHTML=Object.keys(ARABIC).map(k=>`<option>${k}</option>`).join('');
+$('#gf-latin').innerHTML=GF_LATIN.map(f=>`<option value="${f}"></option>`).join('');
+$('#gf-arabic').innerHTML=GF_ARABIC.map(f=>`<option value="${f}"></option>`).join('');
+function fontPreviews(){
+  const fl=$('#cd-fl-prev'), fa=$('#cd-fa-prev');
+  delete fl.dataset.err; delete fa.dataset.err;
+  fl.style.fontFamily=`${ffam(C.fontLatin)}, Arial, sans-serif`; fl.textContent=(C.nameEn||'Abdulaziz Alsheikh')+' · '+(C.titleEn||'Managing Partner');
+  fa.style.fontFamily=`${ffam(C.fontArabic)}, Tahoma, sans-serif`; fa.textContent=(C.nameAr||'عبدالعزيز آل شيخ')+' · '+(C.titleAr||'شريك مؤسس');
+}
+fontPicker($('#cd-fl'),GF_LATIN,f=>{ C.fontLatin=f; cardUpdate(); },$('#cd-fl-prev'));
+fontPicker($('#cd-fa'),GF_ARABIC,f=>{ C.fontArabic=f; cardUpdate(); },$('#cd-fa-prev'));
 $('#brand-btns').innerHTML=BRANDS.map(b=>`<button class="btn small" data-brand="${b.id}">Use ${b.name}</button>`).join('')+'<button class="btn small" id="brand-save">Save as my brand</button>';
 let myBrand=(()=>{ try{ return JSON.parse(store.get(CKEY+'.brand')); }catch(e){ return null; } })();
 function renderBrandBtns(){
@@ -1401,6 +1455,7 @@ renderBrandBtns();
 
 function syncCardColor(k){ $$(`[data-cc="${k}"]`).forEach(e=>e.value=C[k]); $$(`[data-cct="${k}"]`).forEach(e=>{ if(document.activeElement!==e) e.value=C[k].toUpperCase(); }); }
 function fillCard(){
+  [['#cd-fl','fontLatin'],['#cd-fa','fontArabic']].forEach(([id,k])=>{ if(document.activeElement!==$(id)) $(id).value=C[k]; });
   $$('[data-ck]').forEach(el=>{ const v=C[el.dataset.ck]; if(el.type==='checkbox') el.checked=!!v; else if(document.activeElement!==el) el.value=v??''; });
   syncCardColor('bg'); syncCardColor('ink');
 }
@@ -1416,6 +1471,7 @@ function refreshCardUI(){
   $('#qsrc-hint').textContent={vcard:'Scanning offers "Add to contacts" with the name, title, phone, email and website from this card.',
     website:C.website.trim()?'Scanning opens the website.':'Add a website above to use this.',qrtab:'Uses whatever you set up in the QR code tab.'}[C.qrSource];
   $('#cd-share-wrap').hidden=!!window.claude;
+  if(!$('#cd-fl-prev').dataset.err&&!$('#cd-fa-prev').dataset.err) fontPreviews();
 }
 let craf=0;
 function cardUpdate(){ if(craf) return; craf=requestAnimationFrame(async()=>{ craf=0; refreshCardUI(); await prepCard();
@@ -1548,11 +1604,15 @@ async function cardBoot(){
   setMode(mode);
 }
 
+/* ---- frame font ---- */
+function framePrev(){ const p=$('#s-ffont-prev'); delete p.dataset.err; p.style.fontFamily=`${ffam(S.style.frameFont)}, Arial, sans-serif`; p.style.fontWeight='800'; p.textContent=S.style.frameText||'SCAN ME'; }
+fontPicker($('#s-ffont'),GF_LATIN,f=>{ S.style.frameFont=f; framePrev(); update(); },$('#s-ffont-prev'));
 /* ================= boot ================= */
 (async()=>{
   await setLogo(logoData,false);
   fillForm(); renderLib(); renderPresets(); render();
   await cardBoot();
+  $('#s-ffont').value=S.style.frameFont; framePrev(); loadGoogleFont(S.style.frameFont).then(()=>{ framePrev(); update(); });
   if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>{ renderPresets(); update(); });
 })();
 })();
