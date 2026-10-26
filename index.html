@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>QR Forge</title>
+<meta name="description" content="Free QR code generator: links, contact cards (vCard), Wi-Fi, WhatsApp, events and more. Custom shapes, gradients, logo and frames. Export PNG, SVG, JPG. Runs entirely in your browser.">
+<meta name="theme-color" content="#E7EAF1">
+<meta property="og:title" content="QR Forge">
+<meta property="og:description" content="Design QR codes for links, contacts, Wi-Fi and more. Free, no sign-up, nothing leaves your browser.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230B0F1A'/%3E%3Crect x='5' y='5' width='6' height='6' fill='%23E7EAF1'/%3E%3Crect x='13' y='5' width='6' height='6' fill='%23FFC629'/%3E%3Crect x='21' y='5' width='6' height='6' fill='%23E7EAF1'/%3E%3Crect x='5' y='13' width='6' height='6' fill='%23FFC629'/%3E%3Crect x='13' y='13' width='6' height='6' fill='%23E7EAF1'/%3E%3Crect x='21' y='13' width='6' height='6' fill='%23E7EAF1'/%3E%3Crect x='5' y='21' width='6' height='6' fill='%23E7EAF1'/%3E%3Crect x='13' y='21' width='6' height='6' fill='%23E7EAF1'/%3E%3Crect x='21' y='21' width='6' height='6' fill='%23FFC629'/%3E%3C/svg%3E">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800;900&family=Figtree:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: compact masthead, then a 3-step workbench: (1) content + (2) design on the left, (3) sticky preview/export on the right; saved library below. Light-only by choice. */
+:root{
+  color-scheme:light;
+  --bg:#E7EAF1; --paper:#FFFFFF; --sunk:#F1F3F8; --ink:#0B0F1A; --muted:#525A6E; --faint:#8A92A6;
+  --line:#0B0F1A; --hair:#C9CEDB; --shadow:#0B0F1A; --accent:#1F3BFF; --accent-soft:#E3E7FF; --accent-ink:#FFFFFF;
+  --signal:#FFC629; --signal-ink:#0B0F1A; --bad:#C0261B; --warn:#B86E00; --ok:#137A3E;
+  --f-display:"Unbounded","Arial Black",system-ui,sans-serif;
+  --f-body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --r:14px;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1220px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+/* masthead */
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:20px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:900;font-size:18px;letter-spacing:-.01em}
+.brand i{width:28px;height:28px;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:3px;background:var(--ink);border-radius:6px}
+.brand i b{background:var(--bg);border-radius:1px}
+.brand i b:nth-child(2),.brand i b:nth-child(4),.brand i b:nth-child(9){background:var(--signal)}
+.top small{font-family:var(--f-mono);font-size:12px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.hero{padding-block:6px 28px;display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:32px;align-items:end}
+.hero h1{font-family:var(--f-display);font-weight:900;font-size:clamp(30px,5vw,58px);line-height:1;letter-spacing:-.035em;margin:0;text-wrap:balance}
+.hero h1 em{font-style:normal;background:var(--signal);padding:0 .12em;border-radius:.12em;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.hero p{margin:0;color:var(--muted);font-size:16px;max-width:44ch}
+.hero .feat{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.hero .feat span{font:700 11px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;border:2px solid var(--line);border-radius:999px;padding:3px 9px;background:var(--paper)}
+
+/* workbench */
+.bench{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px;align-items:start;padding-bottom:36px}
+.col{display:grid;gap:24px;min-width:0}
+.panel{background:var(--paper);border:2px solid var(--line);border-radius:var(--r);box-shadow:6px 6px 0 var(--shadow);min-width:0}
+.panel-h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 22px 0}
+.panel-h h2{margin:0;display:flex;align-items:center;gap:10px;font:800 17px var(--f-display);letter-spacing:-.01em}
+.step{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--ink);color:var(--paper);font:700 12px var(--f-mono)}
+.panel-b{padding:18px 22px 22px}
+
+/* type tiles */
+.types{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;margin-bottom:20px}
+.type{display:grid;justify-items:center;gap:6px;padding:12px 6px 10px;border:2px solid var(--hair);border-radius:12px;background:var(--paper);font:600 13px var(--f-body);transition:border-color .12s,background .12s,transform .12s}
+.type svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.type:hover{border-color:var(--line);transform:translateY(-1px)}
+.type[aria-pressed="true"]{border-color:var(--line);background:var(--ink);color:var(--paper)}
+
+.pane{display:grid;gap:14px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:grid;gap:6px;min-width:0;align-content:start}
+label,.lbl{font:700 11px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.opt{font-weight:500;color:var(--faint);text-transform:none;letter-spacing:0;font-family:var(--f-body);font-size:12px}
+input[type=text],input[type=url],input[type=email],input[type=tel],input[type=date],input[type=datetime-local],input[type=number],select,textarea{
+  width:100%;font:500 15px var(--f-body);color:var(--ink);background:var(--paper);border:2px solid var(--line);border-radius:10px;padding:10px 12px;outline:none;min-width:0}
+textarea{resize:vertical;min-height:80px}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+input.invalid{border-color:var(--bad)}
+.ferr{font-size:12px;color:var(--bad);margin:-2px 0 0}
+.hint{font-size:12.5px;color:var(--muted);margin:0}
+.check{display:flex;align-items:center;gap:9px;font:500 14px var(--f-body);color:var(--ink);text-transform:none;letter-spacing:0;cursor:pointer}
+.check input{width:18px;height:18px;accent-color:var(--accent);flex:none}
+
+.group{display:grid;gap:10px;padding-top:14px;border-top:2px dashed var(--hair)}
+.group-h{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.group-h h3{margin:0;font:700 14px var(--f-display);letter-spacing:-.01em}
+.li{display:grid;grid-template-columns:132px minmax(0,1fr) 42px;gap:8px}
+.icon-btn{width:42px;height:46px;border:2px solid var(--line);border-radius:10px;background:var(--paper);font:700 18px var(--f-body);line-height:1}
+.icon-btn:hover{background:var(--bad);color:#fff;border-color:var(--bad)}
+.add{font:700 13px var(--f-body);color:var(--accent);background:transparent;border:2px dashed var(--accent);border-radius:999px;padding:5px 12px;white-space:nowrap}
+.add:hover{background:var(--accent);color:var(--accent-ink);border-style:solid}
+.extras{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;font:700 11px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;background:var(--signal);color:var(--signal-ink);border-radius:999px;padding:4px 10px}
+.formbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:18px}
+.link-btn{background:none;border:0;color:var(--muted);font:600 13px var(--f-body);text-decoration:underline;text-underline-offset:3px;padding:4px}
+.link-btn:hover{color:var(--ink)}
+
+/* design tabs */
+.dtabs{display:flex;gap:4px;padding:4px;background:var(--sunk);border:2px solid var(--line);border-radius:12px;overflow-x:auto;scrollbar-width:none}
+.dtabs::-webkit-scrollbar{display:none}
+.dtab{flex:1 0 auto;border:0;background:transparent;border-radius:8px;padding:8px 12px;font:600 14px var(--f-body)}
+.dtab:hover{background:var(--paper)}
+.dtab[aria-selected="true"]{background:var(--ink);color:var(--paper)}
+.dpane{display:grid;gap:18px;padding-top:18px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:8px}
+.tile{display:grid;justify-items:center;gap:6px;padding:10px 4px 8px;border:2px solid var(--hair);border-radius:12px;background:var(--paper);font:600 12px var(--f-body);color:var(--ink)}
+.tile svg{width:38px;height:38px;fill:currentColor}
+.tile:hover{border-color:var(--line)}
+.tile[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)}
+.presets{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px}
+.preset{display:grid;gap:6px;padding:8px;border:2px solid var(--hair);border-radius:12px;background:var(--paper);font:600 13px var(--f-body);text-align:left}
+.preset img{width:100%;aspect-ratio:1;border-radius:6px;display:block;background:var(--sunk)}
+.preset:hover{border-color:var(--line);transform:translateY(-1px)}
+.seg{display:flex;border:2px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{flex:1;border:0;background:var(--paper);font:600 13px var(--f-body);padding:9px 6px}
+.seg button+button{border-left:2px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.colors{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.swatch{display:flex;align-items:center;gap:8px;border:2px solid var(--line);border-radius:10px;padding:5px 8px;background:var(--paper)}
+.swatch input[type=color]{width:32px;height:32px;border:0;padding:0;background:none;cursor:pointer;flex:none}
+.swatch input[type=text]{border:0;padding:4px 2px;font:600 13px var(--f-mono);text-transform:uppercase;box-shadow:none}
+.quick{display:flex;flex-wrap:wrap;gap:8px}
+.quick button{width:30px;height:30px;border-radius:50%;border:2px solid var(--paper);box-shadow:0 0 0 2px var(--hair)}
+.quick button:hover{box-shadow:0 0 0 2px var(--line)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.range-v{font:700 12px var(--f-mono);color:var(--ink)}
+.drop{display:grid;grid-template-columns:72px minmax(0,1fr);gap:14px;align-items:center;border:2px dashed var(--line);border-radius:12px;padding:14px;background:var(--sunk);position:relative;cursor:pointer}
+.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.drop input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.drop .lthumb{width:72px;height:72px;border-radius:10px;border:2px solid var(--line);background:var(--paper) center/contain no-repeat;display:grid;place-items:center;color:var(--faint);font:700 22px var(--f-body)}
+.drop b{display:block;font-size:14px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{border:2px solid var(--hair);background:var(--paper);border-radius:999px;padding:4px 10px;font:700 12px var(--f-body)}
+.chips button:hover{border-color:var(--line)}
+.dfoot{display:flex;justify-content:flex-end}
+
+/* preview */
+.preview{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px)}
+.stage{position:relative;margin:18px 22px 0;background:var(--sunk);border:2px solid var(--line);border-radius:12px;padding:22px;display:grid;place-items:center;
+  background-image:linear-gradient(45deg,#E4E7EF 25%,transparent 25%),linear-gradient(-45deg,#E4E7EF 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#E4E7EF 75%),linear-gradient(-45deg,transparent 75%,#E4E7EF 75%);
+  background-size:16px 16px;background-position:0 0,0 8px,8px -8px,-8px 0}
+.stage img{width:100%;max-width:290px;max-height:330px;object-fit:contain;display:block;filter:drop-shadow(0 6px 14px rgba(11,15,26,.14))}
+.tag{position:absolute;top:-13px;left:16px;background:var(--signal);color:var(--signal-ink);border:2px solid var(--line);border-radius:999px;font:700 11px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;padding:3px 10px}
+.empty{display:grid;place-items:center;text-align:center;gap:6px;min-height:240px;color:var(--muted);font:600 14px var(--f-body);max-width:240px}
+.empty svg{width:56px;height:56px;fill:none;stroke:var(--faint);stroke-width:1.5}
+.stats{font:500 12px var(--f-mono);color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 14px;padding:12px 22px 0;font-variant-numeric:tabular-nums}
+.stats b{color:var(--ink);font-weight:700}
+.scan{margin:14px 22px 0;border:2px solid var(--line);border-radius:12px;overflow:hidden}
+.scan-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:var(--sunk);border-bottom:2px solid var(--line)}
+.scan-h strong{display:flex;align-items:center;gap:8px;font:700 14px var(--f-body)}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--ok);flex:none}
+.dot.warn{background:var(--warn)} .dot.bad{background:var(--bad)}
+.scan-h span{font:600 12px var(--f-mono);color:var(--muted)}
+.scan ul{list-style:none;margin:0;padding:6px 12px 8px;display:grid;gap:2px}
+.scan li{display:grid;grid-template-columns:10px minmax(0,1fr);gap:10px;align-items:baseline;font-size:13px;padding:3px 0}
+.scan li .dot{transform:translateY(1px)}
+.scan li em{font-style:normal;color:var(--muted)}
+.export{padding:16px 22px 22px;display:grid;gap:10px}
+.export-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{font:700 14px var(--f-body);border:2px solid var(--line);border-radius:10px;padding:11px 14px;background:var(--paper);color:var(--ink);box-shadow:3px 3px 0 var(--shadow);transition:transform .08s,box-shadow .08s;text-align:center;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--shadow)}
+.btn:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--shadow)}
+.btn:disabled{opacity:.45;pointer-events:none}
+.btn.primary{background:var(--accent);color:var(--accent-ink)}
+.btn.small{padding:7px 12px;font-size:13px;box-shadow:2px 2px 0 var(--shadow)}
+.btn.wide{grid-column:1/-1}
+.btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+details{border:2px solid var(--hair);border-radius:10px}
+summary{cursor:pointer;padding:9px 12px;font:700 11px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+details pre{margin:0;padding:0 12px 12px;font:500 12px/1.5 var(--f-mono);white-space:pre-wrap;word-break:break-all;max-height:200px;overflow:auto}
+
+/* library */
+.lib{padding-bottom:28px}
+.lib-h{display:flex;align-items:end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.lib-h h2{margin:0;font:800 22px var(--f-display);letter-spacing:-.02em}
+.lib-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.card{background:var(--paper);border:2px solid var(--line);border-radius:12px;padding:12px;display:grid;grid-template-columns:64px minmax(0,1fr);gap:12px;align-items:center}
+.card img{width:64px;height:64px;object-fit:contain;border-radius:6px;background:var(--sunk)}
+.card input{border:0;border-bottom:2px solid transparent;border-radius:0;padding:2px 0;font:700 14px var(--f-body);background:transparent;width:100%}
+.card input:focus{border-bottom-color:var(--accent);box-shadow:none}
+.card small{display:block;font:500 11px var(--f-mono);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.card .acts{display:flex;gap:6px;margin-top:6px}
+.lib-empty{border:2px dashed var(--hair);border-radius:12px;padding:22px;color:var(--muted);text-align:center}
+
+/* facts */
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:2px solid var(--line);margin-bottom:24px}
+.fact{padding:20px 22px 4px 0;min-width:0}
+.fact+.fact{padding-left:22px;border-left:2px solid var(--line)}
+.fact h4{margin:0 0 8px;font:700 15px var(--f-display);letter-spacing:-.01em}
+.fact p{margin:0;color:var(--muted);font-size:14px;max-width:46ch}
+.fact code{font:600 12px var(--f-mono);background:var(--paper);border-radius:4px;padding:1px 5px;color:var(--ink)}
+footer{padding-block:16px 30px;font:500 12px var(--f-mono);color:var(--muted)}
+
+/* toast + mobile bar */
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,120px);opacity:0;pointer-events:none;background:var(--ink);color:var(--paper);font:600 14px var(--f-body);padding:8px 8px 8px 16px;border-radius:999px;transition:transform .25s,opacity .25s;z-index:30;display:flex;align-items:center;gap:12px;max-width:calc(100% - 32px)}
+.toast.show{transform:translate(-50%,0);opacity:1;pointer-events:auto}
+.toast button{background:var(--signal);color:var(--signal-ink);border:0;border-radius:999px;padding:5px 12px;font:700 13px var(--f-body)}
+.toast:not(.has-act){padding-right:16px}
+.mbar{display:none}
+
+@media (max-width:960px){
+  .bench,.hero{grid-template-columns:minmax(0,1fr)}
+  .preview{position:static}
+  .facts{grid-template-columns:minmax(0,1fr)}
+  .fact,.fact+.fact{padding:16px 0 4px;border-left:0}
+  .fact+.fact{border-top:2px dashed var(--hair)}
+  .mbar{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;align-items:center;gap:10px;
+    padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
+    background:var(--paper);border-top:2px solid var(--line);transition:transform .2s}
+  .mbar.away{transform:translateY(110%)}
+  .mbar img{width:44px;height:44px;object-fit:contain;border:2px solid var(--line);border-radius:8px;background:#fff}
+  .mbar .grow{flex:1;min-width:0;font:600 13px var(--f-body);color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mbar .grow b{display:block;color:var(--ink);font-size:14px}
+  body{padding-bottom:80px}
+  .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+}
+@media (max-width:520px){
+  .row{grid-template-columns:minmax(0,1fr)}
+  .li{grid-template-columns:minmax(0,1fr) 42px}
+  .li select{grid-column:1/-1}
+  .panel-h,.panel-b{padding-left:16px;padding-right:16px}
+  .stage,.scan{margin-left:16px;margin-right:16px}
+  .stats,.export{padding-left:16px;padding-right:16px}
+  .panel{box-shadow:4px 4px 0 var(--shadow)}
+  .top small{display:none}
+  .types{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .presets{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .preset{padding:6px;font-size:12px}
+  .dtab{padding:8px 6px;font-size:13px;flex:1 1 auto}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><i aria-hidden="true"><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b></i>QR Forge</div>
+    <small>Free · No sign-up · Nothing leaves your browser</small>
+  </header>
+
+  <section class="hero">
+    <h1>QR codes that open <em>the right thing.</em></h1>
+    <div>
+      <p>Links, Wi-Fi, events and contact cards that save straight into the phone. Design it, check it scans, export it for print.</p>
+      <div class="feat"><span>9 code types</span><span>7 module shapes</span><span>Logo</span><span>Frames</span><span>PNG · SVG · JPG</span></div>
+    </div>
+  </section>
+
+  <main class="bench">
+    <div class="col">
+      <!-- 1. CONTENT -->
+      <section class="panel" aria-labelledby="h-content">
+        <div class="panel-h"><h2 id="h-content"><span class="step">1</span>What should it open?</h2></div>
+        <div class="panel-b">
+          <div class="types" id="types"></div>
+
+          <div class="pane" data-pane="url">
+            <div class="field"><label for="f-url">Website or link</label><input id="f-url" type="url" data-k="url.value" data-v="url" placeholder="yourbrand.com/menu" inputmode="url" autocomplete="url"></div>
+            <p class="hint">No need to type https://, it's added for you.</p>
+          </div>
+
+          <div class="pane" data-pane="text">
+            <div class="field"><label for="f-text">Text</label><textarea id="f-text" data-k="text.value" placeholder="Any message, code or note. Phones show it as plain text."></textarea></div>
+          </div>
+
+          <div class="pane" data-pane="wifi">
+            <div class="row">
+              <div class="field"><label for="f-ssid">Network name</label><input id="f-ssid" type="text" data-k="wifi.ssid" placeholder="Studio-Guest" autocomplete="off"></div>
+              <div class="field"><label for="f-pass">Password</label><input id="f-pass" type="text" data-k="wifi.pass" placeholder="Case-sensitive" autocomplete="off"></div>
+            </div>
+            <div class="row">
+              <div class="field"><label for="f-sec">Security</label>
+                <select id="f-sec" data-k="wifi.sec"><option value="WPA">WPA / WPA2 / WPA3</option><option value="WEP">WEP</option><option value="nopass">None (open network)</option></select></div>
+              <div class="field" style="align-content:end"><label class="check"><input id="f-hidden" type="checkbox" data-k="wifi.hidden"> Hidden network</label></div>
+            </div>
+            <p class="hint">Phones join the network on scan, no typing.</p>
+          </div>
+
+          <div class="pane" data-pane="whatsapp">
+            <div class="field"><label for="f-wan">WhatsApp number</label><input id="f-wan" type="tel" data-k="whatsapp.number" data-v="phone" placeholder="+971 50 123 4567" inputmode="tel"></div>
+            <div class="field"><label for="f-wam">Pre-filled message <span class="opt">optional</span></label><textarea id="f-wam" data-k="whatsapp.message" placeholder="Hi! I'd like to book a table."></textarea></div>
+            <p class="hint">Include the country code. Opens a chat with your message ready to send.</p>
+          </div>
+
+          <div class="pane" data-pane="email">
+            <div class="field"><label for="f-to">Send to</label><input id="f-to" type="email" data-k="email.to" data-v="email" placeholder="hello@yourbrand.com" inputmode="email"></div>
+            <div class="field"><label for="f-subj">Subject <span class="opt">optional</span></label><input id="f-subj" type="text" data-k="email.subject"></div>
+            <div class="field"><label for="f-body">Message <span class="opt">optional</span></label><textarea id="f-body" data-k="email.body"></textarea></div>
+          </div>
+
+          <div class="pane" data-pane="phone">
+            <div class="field"><span class="lbl">On scan</span>
+              <div class="seg" id="pmode"><button data-pmode="call">Start a call</button><button data-pmode="sms">Write an SMS</button></div></div>
+            <div class="field"><label for="f-pnum">Phone number</label><input id="f-pnum" type="tel" data-k="phone.number" data-v="phone" placeholder="+971 50 123 4567" inputmode="tel"></div>
+            <div class="field" id="sms-field"><label for="f-pmsg">SMS text <span class="opt">optional</span></label><textarea id="f-pmsg" data-k="phone.message"></textarea></div>
+          </div>
+
+          <div class="pane" data-pane="location">
+            <div class="field"><label for="f-loc">Address, place or coordinates</label><input id="f-loc" type="text" data-k="location.query" placeholder="Dubai Design District, Building 7  ·  or  25.1866, 55.2972"></div>
+            <p class="hint">Opens in Google Maps on any phone, with directions one tap away.</p>
+          </div>
+
+          <div class="pane" data-pane="event">
+            <div class="field"><label for="f-evt">Event name</label><input id="f-evt" type="text" data-k="event.title" placeholder="Launch evening"></div>
+            <div class="row">
+              <div class="field"><label for="f-evs">Starts</label><input id="f-evs" type="datetime-local" data-k="event.start"></div>
+              <div class="field"><label for="f-eve">Ends <span class="opt">optional</span></label><input id="f-eve" type="datetime-local" data-k="event.end"></div>
+            </div>
+            <div class="field"><label for="f-evl">Location <span class="opt">optional</span></label><input id="f-evl" type="text" data-k="event.location"></div>
+            <div class="field"><label for="f-evd">Details <span class="opt">optional</span></label><textarea id="f-evd" data-k="event.desc"></textarea></div>
+            <p class="hint">Scanning offers "Add to calendar" with the time, place and details filled in.</p>
+          </div>
+
+          <div class="pane" data-pane="vcard">
+            <div class="row">
+              <div class="field"><label for="v-first">First name</label><input id="v-first" type="text" data-k="vcard.first" autocomplete="given-name"></div>
+              <div class="field"><label for="v-last">Last name</label><input id="v-last" type="text" data-k="vcard.last" autocomplete="family-name"></div>
+            </div>
+            <div class="row">
+              <div class="field"><label for="v-org">Company</label><input id="v-org" type="text" data-k="vcard.org" autocomplete="organization"></div>
+              <div class="field"><label for="v-title">Job title</label><input id="v-title" type="text" data-k="vcard.title" autocomplete="organization-title"></div>
+            </div>
+            <div class="group"><div class="group-h"><h3>Phone</h3><button class="add" data-add="phones">+ Add phone</button></div><div data-list="phones" class="pane"></div></div>
+            <div class="group"><div class="group-h"><h3>Email</h3><button class="add" data-add="emails">+ Add email</button></div><div data-list="emails" class="pane"></div></div>
+            <div class="group"><div class="group-h"><h3>Website</h3><button class="add" data-add="websites">+ Add website</button></div><div data-list="websites" class="pane"></div></div>
+            <div class="group"><div class="group-h"><h3>Social</h3><button class="add" data-add="socials">+ Add social</button></div><div data-list="socials" class="pane"></div></div>
+            <div class="group" id="g-addr" hidden>
+              <div class="group-h"><h3>Address</h3><button class="add" data-remove-extra="addr">Remove</button></div>
+              <div class="field"><label for="v-street">Street</label><input id="v-street" type="text" data-k="vcard.addr.street" autocomplete="street-address"></div>
+              <div class="row">
+                <div class="field"><label for="v-city">City</label><input id="v-city" type="text" data-k="vcard.addr.city" autocomplete="address-level2"></div>
+                <div class="field"><label for="v-region">State / region</label><input id="v-region" type="text" data-k="vcard.addr.region" autocomplete="address-level1"></div>
+              </div>
+              <div class="row">
+                <div class="field"><label for="v-zip">Postcode</label><input id="v-zip" type="text" data-k="vcard.addr.zip" autocomplete="postal-code"></div>
+                <div class="field"><label for="v-country">Country</label><input id="v-country" type="text" data-k="vcard.addr.country" autocomplete="country-name"></div>
+              </div>
+            </div>
+            <div class="group" id="g-bday" hidden>
+              <div class="group-h"><h3>Birthday</h3><button class="add" data-remove-extra="bday">Remove</button></div>
+              <div class="field"><label for="v-bday">Date</label><input id="v-bday" type="date" data-k="vcard.bday"></div>
+            </div>
+            <div class="group" id="g-note" hidden>
+              <div class="group-h"><h3>Note</h3><button class="add" data-remove-extra="note">Remove</button></div>
+              <div class="field"><label for="v-note">Note on the contact</label><textarea id="v-note" data-k="vcard.note"></textarea></div>
+            </div>
+            <div class="group">
+              <span class="lbl">Add field</span>
+              <div class="extras">
+                <button class="add" data-extra="addr">+ Address</button>
+                <button class="add" data-extra="bday">+ Birthday</button>
+                <button class="add" data-extra="note">+ Note</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="formbar">
+            <span class="chip" id="example-chip">Example data · replace with yours</span>
+            <button class="link-btn" id="clear-btn">Clear this form</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. DESIGN -->
+      <section class="panel" aria-labelledby="h-design">
+        <div class="panel-h"><h2 id="h-design"><span class="step">2</span>Design</h2><button class="link-btn" id="reset-design">Reset design</button></div>
+        <div class="panel-b">
+          <div class="dtabs" role="tablist">
+            <button class="dtab" role="tab" data-dtab="presets">Presets</button>
+            <button class="dtab" role="tab" data-dtab="shape">Shape</button>
+            <button class="dtab" role="tab" data-dtab="color">Colour</button>
+            <button class="dtab" role="tab" data-dtab="logo">Logo</button>
+            <button class="dtab" role="tab" data-dtab="frame">Frame</button>
+          </div>
+
+          <div class="dpane" data-dpane="presets">
+            <p class="hint">One click restyles shapes and colours. Your content, logo and frame stay as they are.</p>
+            <div class="presets" id="presets"></div>
+          </div>
+
+          <div class="dpane" data-dpane="shape">
+            <div class="field"><span class="lbl">Modules</span><div class="tiles" id="t-shape"></div></div>
+            <div class="field"><span class="lbl">Corner frame</span><div class="tiles" id="t-eyeFrame"></div></div>
+            <div class="field"><span class="lbl">Corner centre</span><div class="tiles" id="t-eyeBall"></div></div>
+            <div class="group">
+              <div class="row">
+                <div class="field"><label for="s-ecc">Damage tolerance</label>
+                  <select id="s-ecc" data-s="ecc"><option value="L">Low · 7%</option><option value="M">Medium · 15%</option><option value="Q">High · 25%</option><option value="H">Max · 30%</option></select>
+                  <p class="hint" id="ecc-hint">Higher survives scratches and logos, but makes a denser code.</p></div>
+                <div class="field"><label for="s-margin">Quiet zone <span class="range-v" id="s-margin-v"></span></label><input id="s-margin" type="range" min="0" max="8" step="1" data-s="margin">
+                  <p class="hint">The blank border scanners need. 4 modules is the standard.</p></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="dpane" data-dpane="color">
+            <div class="field"><span class="lbl">Code fill</span>
+              <div class="seg" id="fillmode"><button data-fill="solid">Solid</button><button data-fill="linear">Linear gradient</button><button data-fill="radial">Radial</button></div></div>
+            <div class="colors">
+              <div class="field"><label for="c-fg" id="l-fg">Code colour</label><div class="swatch"><input id="c-fg" type="color" data-c="fg" aria-labelledby="l-fg"><input type="text" id="c-fg-t" data-ct="fg" maxlength="7" aria-label="Code colour hex"></div></div>
+              <div class="field" id="f-fg2"><label for="c-fg2">Gradient end</label><div class="swatch"><input id="c-fg2" type="color" data-c="fg2"><input type="text" id="c-fg2-t" data-ct="fg2" maxlength="7" aria-label="Gradient end hex"></div></div>
+              <div class="field" id="f-dir"><label for="s-dir">Direction</label><select id="s-dir" data-s="dir"><option value="diag">Diagonal ↘</option><option value="down">Top to bottom ↓</option><option value="right">Left to right →</option></select></div>
+            </div>
+            <div class="field"><span class="lbl">Quick colours</span><div class="quick" id="quick"></div></div>
+            <div class="group">
+              <div class="colors">
+                <div class="field"><label for="c-bg">Background</label><div class="swatch"><input id="c-bg" type="color" data-c="bg"><input type="text" id="c-bg-t" data-ct="bg" maxlength="7" aria-label="Background hex"></div></div>
+                <div class="field" style="align-content:end"><label class="check"><input type="checkbox" id="s-transparent" data-sc="transparent"> Transparent background</label></div>
+              </div>
+            </div>
+            <div class="group">
+              <label class="check"><input type="checkbox" id="s-eyecustom" data-sc="eyeCustom"> Give the corners their own colours</label>
+              <div class="colors" id="eyecolors">
+                <div class="field"><label for="c-ef">Corner frame</label><div class="swatch"><input id="c-ef" type="color" data-c="eyeFrameColor"><input type="text" id="c-ef-t" data-ct="eyeFrameColor" maxlength="7" aria-label="Corner frame hex"></div></div>
+                <div class="field"><label for="c-eb">Corner centre</label><div class="swatch"><input id="c-eb" type="color" data-c="eyeBallColor"><input type="text" id="c-eb-t" data-ct="eyeBallColor" maxlength="7" aria-label="Corner centre hex"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="dpane" data-dpane="logo">
+            <label class="drop" id="drop">
+              <input id="s-logo" type="file" accept="image/*" aria-label="Upload logo">
+              <span class="lthumb" id="lthumb">+</span>
+              <span><b id="drop-t">Drop your logo here or click to upload</b><span class="hint" id="drop-s">PNG, JPG or SVG. A square logo with a transparent background looks best.</span></span>
+            </label>
+            <div id="logo-opts" class="pane">
+              <div class="field"><label for="s-logosize">Logo size <span class="range-v" id="s-logosize-v"></span></label><input id="s-logosize" type="range" min="12" max="30" step="1" data-s="logoSize"></div>
+              <label class="check"><input type="checkbox" id="s-plate" data-sc="logoPlate"> White plate behind the logo</label>
+              <label class="check"><input type="checkbox" id="s-clear" data-sc="logoClear"> Clear the modules behind the logo</label>
+              <div><button class="btn small" id="logo-rm">Remove logo</button></div>
+              <p class="hint">With a logo, damage tolerance is locked to Max (30%) so the covered part is recovered on scan.</p>
+            </div>
+          </div>
+
+          <div class="dpane" data-dpane="frame">
+            <div class="field"><span class="lbl">Frame style</span><div class="tiles" id="t-frame"></div></div>
+            <div id="frame-opts" class="pane">
+              <div class="field"><label for="s-ftext">Call to action</label><input id="s-ftext" type="text" data-s="frameText" maxlength="28" placeholder="SCAN ME">
+                <div class="chips" id="ftchips"></div></div>
+              <div class="colors">
+                <div class="field"><label for="c-fc">Frame colour</label><div class="swatch"><input id="c-fc" type="color" data-c="frameColor"><input type="text" id="c-fc-t" data-ct="frameColor" maxlength="7" aria-label="Frame colour hex"></div></div>
+                <div class="field" id="f-ftc"><label for="c-ftc">Text colour</label><div class="swatch"><input id="c-ftc" type="color" data-c="frameTextColor"><input type="text" id="c-ftc-t" data-ct="frameTextColor" maxlength="7" aria-label="Text colour hex"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- 3. PREVIEW + EXPORT -->
+    <aside class="panel preview" id="preview" aria-labelledby="h-export">
+      <div class="panel-h"><h2 id="h-export"><span class="step">3</span>Check &amp; download</h2></div>
+      <div class="stage">
+        <span class="tag" id="tag">Contact</span>
+        <img id="qr-img" alt="Live preview of your QR code">
+        <div class="empty" id="qr-empty" hidden>
+          <svg viewBox="0 0 48 48" aria-hidden="true"><rect x="4" y="4" width="14" height="14" rx="3"/><rect x="30" y="4" width="14" height="14" rx="3"/><rect x="4" y="30" width="14" height="14" rx="3"/><path d="M30 30h4v4h-4zM40 30h4M30 40h4v4M38 38h6v6"/></svg>
+          <span id="qr-empty-t"></span>
+        </div>
+      </div>
+      <div class="stats" id="stats"></div>
+      <div class="scan" id="scan" hidden>
+        <div class="scan-h"><strong><span class="dot" id="scan-dot"></span><span id="scan-t"></span></strong><span id="scan-size"></span></div>
+        <ul id="scan-list"></ul>
+      </div>
+      <div class="export">
+        <div class="export-row">
+          <label for="s-size" style="margin:0">Export size</label>
+          <select id="s-size" data-s="size" style="width:auto"><option value="512">512 px · web</option><option value="1024">1024 px</option><option value="2048">2048 px</option><option value="4096">4096 px · print</option></select>
+        </div>
+        <div class="actions">
+          <button class="btn primary" id="dl-png"><svg viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>PNG</button>
+          <button class="btn" id="dl-svg"><svg viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>SVG</button>
+          <button class="btn" id="dl-jpg">JPG</button>
+          <button class="btn" id="copy-img">Copy image</button>
+          <button class="btn wide" id="dl-vcf">Download contact file (.vcf)</button>
+          <button class="btn wide" id="save-lib"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg>Save to my codes</button>
+        </div>
+        <details><summary>Encoded content</summary><pre id="payload"></pre></details>
+        <button class="link-btn" id="copy-text" style="justify-self:start">Copy the encoded text</button>
+      </div>
+    </aside>
+  </main>
+
+  <section class="lib" id="library" aria-labelledby="h-lib">
+    <div class="lib-h"><h2 id="h-lib">My codes</h2><span class="hint">Saved in this browser only. Click a name to rename.</span></div>
+    <div class="lib-grid" id="lib-grid"></div>
+  </section>
+
+  <section class="facts">
+    <div class="fact"><h4>Scan to save the contact</h4><p>Contact cards are written into the code as a <code>vCard 3.0</code>. iPhone Camera, Android Camera and Google Lens read it and offer <b>Add to contacts</b>. Name, phones, emails, sites and socials land in the right fields.</p></div>
+    <div class="fact"><h4>Codes that never expire</h4><p>Everything is stored inside the code itself, so it works offline and forever with no server and no tracking. The flip side: a printed code can't be re-pointed. Reprint, or point a Link code at a page you can edit.</p></div>
+    <div class="fact"><h4>Print so it scans</h4><p>Follow the size in the scan check. Keep 4 modules of quiet zone, dark code on a light background, and test with two phones before a big print run.</p></div>
+  </section>
+  <footer>QR Forge · nothing you type leaves this page</footer>
+</div>
+
+<div class="mbar" id="mbar">
+  <img id="mbar-img" alt="">
+  <div class="grow"><b id="mbar-t">Your QR code</b><span id="mbar-s">Tap to preview</span></div>
+  <button class="btn small" id="mbar-view">Preview</button>
+  <button class="btn small primary" id="mbar-dl">PNG</button>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"><span id="toast-t"></span><button id="toast-b" hidden>Undo</button></div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script>
+(function(){
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const KEY='qrforge.v2', LIBKEY='qrforge.lib.v2';
+const clone=o=>JSON.parse(JSON.stringify(o));
+if(qrcode.stringToBytesFuncs&&qrcode.stringToBytesFuncs['UTF-8']) qrcode.stringToBytes=qrcode.stringToBytesFuncs['UTF-8'];
+
+/* ================= state ================= */
+const DEFAULT_STYLE={shape:'rounded',eyeFrame:'rounded',eyeBall:'rounded',fill:'solid',fg:'#0B0F1A',fg2:'#1F3BFF',dir:'diag',
+  bg:'#FFFFFF',transparent:false,eyeCustom:true,eyeFrameColor:'#1F3BFF',eyeBallColor:'#0B0F1A',ecc:'M',margin:4,size:'1024',
+  logoSize:22,logoPlate:true,logoClear:true,frame:'none',frameText:'SCAN ME',frameColor:'#0B0F1A',frameTextColor:'#FFFFFF'};
+const EMPTY={
+  url:()=>({value:''}), text:()=>({value:''}),
+  wifi:()=>({ssid:'',pass:'',sec:'WPA',hidden:false}),
+  whatsapp:()=>({number:'',message:''}),
+  email:()=>({to:'',subject:'',body:''}),
+  phone:()=>({mode:'call',number:'',message:''}),
+  location:()=>({query:''}),
+  event:()=>({title:'',start:'',end:'',location:'',desc:''}),
+  vcard:()=>({first:'',last:'',org:'',title:'',phones:[{type:'CELL',value:''}],emails:[{type:'WORK',value:''}],websites:[{type:'WORK',value:''}],socials:[],
+    addr:{street:'',city:'',region:'',zip:'',country:''},bday:'',note:'',extras:{addr:false,bday:false,note:false}})
+};
+function example(){
+  const s={type:'vcard',example:true,style:clone(DEFAULT_STYLE)};
+  Object.keys(EMPTY).forEach(k=>s[k]=EMPTY[k]());
+  s.url.value='yourbrand.com';
+  Object.assign(s.vcard,{first:'Alex',last:'Rivera',org:'Northwind Studio',title:'Creative Director',
+    phones:[{type:'CELL',value:'+971 50 123 4567'}],emails:[{type:'WORK',value:'alex@northwind.studio'}],
+    websites:[{type:'WORK',value:'northwind.studio'}],socials:[{type:'linkedin',value:'alexrivera'},{type:'instagram',value:'@northwind.studio'}]});
+  return s;
+}
+function normalize(s){
+  const base=example();
+  if(!s||typeof s!=='object') return base;
+  Object.keys(EMPTY).forEach(k=>{ s[k]=Object.assign(EMPTY[k](),s[k]||{}); });
+  s.vcard.extras=Object.assign({addr:false,bday:false,note:false},s.vcard.extras||{});
+  s.style=Object.assign(clone(DEFAULT_STYLE),s.style||{});
+  if(!TYPES.find(t=>t.id===s.type)) s.type='vcard';
+  return s;
+}
+const store={get(k){try{return localStorage.getItem(k);}catch(e){return null;}},set(k,v){try{localStorage.setItem(k,v);return true;}catch(e){return false;}},del(k){try{localStorage.removeItem(k);}catch(e){}}};
+
+/* ================= definitions ================= */
+const I=p=>`<svg viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`;
+const TYPES=[
+  {id:'url',label:'Link',icon:I('<path d="M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1"/><path d="M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1"/>')},
+  {id:'vcard',label:'Contact',icon:I('<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>')},
+  {id:'wifi',label:'Wi-Fi',icon:I('<path d="M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0"/><circle cx="12" cy="19.5" r=".8"/>')},
+  {id:'whatsapp',label:'WhatsApp',icon:I('<path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/><path d="M9 9.5c.5 2.5 2.5 4.5 5 5"/>')},
+  {id:'email',label:'Email',icon:I('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>')},
+  {id:'phone',label:'Call / SMS',icon:I('<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>')},
+  {id:'location',label:'Location',icon:I('<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>')},
+  {id:'event',label:'Event',icon:I('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>')},
+  {id:'text',label:'Text',icon:I('<path d="M4 6h16M4 12h16M4 18h10"/>')}
+];
+const TAGS=Object.fromEntries(TYPES.map(t=>[t.id,t.label]));
+const SOCIAL={
+  linkedin:{label:'LinkedIn',base:'https://www.linkedin.com/in/',ph:'username or profile URL'},
+  instagram:{label:'Instagram',base:'https://instagram.com/',ph:'@handle'},
+  x:{label:'X / Twitter',base:'https://x.com/',ph:'@handle'},
+  facebook:{label:'Facebook',base:'https://facebook.com/',ph:'page or username'},
+  tiktok:{label:'TikTok',base:'https://www.tiktok.com/@',ph:'@handle'},
+  youtube:{label:'YouTube',base:'https://youtube.com/@',ph:'@channel'},
+  whatsapp:{label:'WhatsApp',base:'https://wa.me/',ph:'number with country code'},
+  telegram:{label:'Telegram',base:'https://t.me/',ph:'@username'},
+  github:{label:'GitHub',base:'https://github.com/',ph:'username'},
+  behance:{label:'Behance',base:'https://www.behance.net/',ph:'username'},
+  dribbble:{label:'Dribbble',base:'https://dribbble.com/',ph:'username'},
+  other:{label:'Other link',base:'',ph:'https://…'}
+};
+const LISTS={
+  phones:{types:[['CELL','Mobile'],['WORK','Work'],['HOME','Home'],['FAX','Fax']],input:'tel',ph:'+971 50 123 4567',def:'CELL',v:'phone'},
+  emails:{types:[['WORK','Work'],['HOME','Personal']],input:'email',ph:'name@company.com',def:'WORK',v:'email'},
+  websites:{types:[['WORK','Work'],['HOME','Personal']],input:'url',ph:'company.com',def:'WORK',v:'url'},
+  socials:{types:Object.entries(SOCIAL).map(([k,v])=>[k,v.label]),input:'text',ph:'',def:'linkedin'}
+};
+const SHAPES=[['square','Square'],['rounded','Rounded'],['soft','Soft'],['dots','Dots'],['diamond','Diamond'],['vbars','Columns'],['hbars','Rows']];
+const EYEF=[['square','Square'],['rounded','Rounded'],['circle','Circle'],['leaf','Leaf']];
+const EYEB=[['square','Square'],['rounded','Rounded'],['circle','Circle'],['leaf','Leaf'],['diamond','Diamond']];
+const FRAMES=[['none','None'],['bottom','Banner below'],['top','Banner above'],['outline','Outline']];
+const FTEXTS=['SCAN ME','SAVE MY CONTACT','JOIN OUR WI-FI','VIEW THE MENU','CHAT WITH US','RSVP'];
+const QUICK=['#0B0F1A','#1F3BFF','#0A6AA6','#0E7C66','#C0261B','#E2561B','#7A2BD9','#B4235F','#5A3E1B','#3D4352'];
+const PRESETS=[
+  {name:'Classic',s:{shape:'square',eyeFrame:'square',eyeBall:'square',fill:'solid',fg:'#000000',bg:'#FFFFFF',eyeCustom:false}},
+  {name:'Cobalt',s:{shape:'rounded',eyeFrame:'rounded',eyeBall:'rounded',fill:'solid',fg:'#0B0F1A',bg:'#FFFFFF',eyeCustom:true,eyeFrameColor:'#1F3BFF',eyeBallColor:'#0B0F1A'}},
+  {name:'Ocean',s:{shape:'dots',eyeFrame:'circle',eyeBall:'circle',fill:'linear',fg:'#0A6AA6',fg2:'#1F3BFF',dir:'diag',bg:'#FFFFFF',eyeCustom:false}},
+  {name:'Sunset',s:{shape:'rounded',eyeFrame:'leaf',eyeBall:'leaf',fill:'linear',fg:'#C2410C',fg2:'#8A1846',dir:'down',bg:'#FFFFFF',eyeCustom:false}},
+  {name:'Forest',s:{shape:'soft',eyeFrame:'rounded',eyeBall:'circle',fill:'solid',fg:'#0E3B2E',bg:'#F2F7F1',eyeCustom:true,eyeFrameColor:'#0E7C66',eyeBallColor:'#0E3B2E'}},
+  {name:'Grape',s:{shape:'diamond',eyeFrame:'rounded',eyeBall:'diamond',fill:'radial',fg:'#7A2BD9',fg2:'#1F1147',bg:'#FFFFFF',eyeCustom:false}},
+  {name:'Columns',s:{shape:'vbars',eyeFrame:'square',eyeBall:'square',fill:'solid',fg:'#111111',bg:'#FFFFFF',eyeCustom:false}},
+  {name:'Highlighter',s:{shape:'rounded',eyeFrame:'circle',eyeBall:'circle',fill:'solid',fg:'#0B0F1A',bg:'#FFC629',eyeCustom:false}},
+  {name:'Ember',s:{shape:'hbars',eyeFrame:'leaf',eyeBall:'circle',fill:'linear',fg:'#A61E14',fg2:'#0B0F1A',dir:'right',bg:'#FFFFFF',eyeCustom:false}}
+];
+
+/* ================= payload ================= */
+const esc=s=>String(s).replace(/\\/g,'\\\\').replace(/\n/g,'\\n').replace(/([,;])/g,'\\$1');
+const withScheme=v=>{v=(v||'').trim(); if(!v) return ''; return /^[a-z][a-z0-9+.-]*:/i.test(v)?v:'https://'+v;};
+const digits=v=>(v||'').replace(/[^\d+]/g,'');
+function socialURL(type,v){
+  v=(v||'').trim(); if(!v) return '';
+  if(/^https?:\/\//i.test(v)) return v;
+  if(/^[\w-]+\.[\w.-]+\//.test(v)) return 'https://'+v;
+  if(type==='other') return withScheme(v);
+  if(type==='whatsapp') return SOCIAL.whatsapp.base+v.replace(/\D/g,'');
+  return SOCIAL[type].base+v.replace(/^@/,'');
+}
+function buildVCard(v){
+  const L=['BEGIN:VCARD','VERSION:3.0'], t=s=>(s||'').trim();
+  const fn=[t(v.first),t(v.last)].filter(Boolean).join(' ');
+  L.push(`N:${esc(t(v.last))};${esc(t(v.first))};;;`, `FN:${esc(fn||t(v.org)||'Contact')}`);
+  if(t(v.org)) L.push(`ORG:${esc(t(v.org))}`);
+  if(t(v.title)) L.push(`TITLE:${esc(t(v.title))}`);
+  v.phones.forEach(p=>{ if(t(p.value)) L.push(`TEL;TYPE=${p.type==='CELL'?'CELL,VOICE':p.type}:${t(p.value)}`); });
+  v.emails.forEach(e=>{ if(t(e.value)) L.push(`EMAIL;TYPE=INTERNET,${e.type}:${t(e.value)}`); });
+  v.websites.forEach(w=>{ const u=withScheme(w.value); if(u) L.push(`URL;TYPE=${w.type}:${u}`); });
+  v.socials.forEach(s=>{ const u=socialURL(s.type,s.value); if(u) L.push(`URL;TYPE=${SOCIAL[s.type].label.replace(/[^A-Za-z]/g,'')}:${u}`); });
+  if(v.extras.addr){ const a=v.addr; if(Object.values(a).some(x=>t(x))) L.push(`ADR;TYPE=WORK:;;${[a.street,a.city,a.region,a.zip,a.country].map(x=>esc(t(x))).join(';')}`); }
+  if(v.extras.bday&&v.bday) L.push(`BDAY:${v.bday}`);
+  if(v.extras.note&&t(v.note)) L.push(`NOTE:${esc(t(v.note))}`);
+  L.push('END:VCARD'); return L.join('\r\n');
+}
+const icsDate=d=>d?d.replace(/[-:]/g,'').slice(0,13)+'00':'';
+function buildPayload(s){
+  switch(s.type){
+    case 'url': return withScheme(s.url.value);
+    case 'text': return s.text.value.trim()?s.text.value:'';
+    case 'wifi': { const w=s.wifi,e=x=>x.replace(/([\\;,:"])/g,'\\$1'); if(!w.ssid.trim()) return '';
+      return `WIFI:T:${w.sec};S:${e(w.ssid)};${w.sec==='nopass'?'':'P:'+e(w.pass)+';'}${w.hidden?'H:true;':''};`; }
+    case 'whatsapp': { const n=digits(s.whatsapp.number).replace(/^\+/,''); if(!n) return '';
+      return 'https://wa.me/'+n+(s.whatsapp.message.trim()?'?text='+encodeURIComponent(s.whatsapp.message):''); }
+    case 'email': { const m=s.email; if(!m.to.trim()) return ''; const q=[];
+      if(m.subject) q.push('subject='+encodeURIComponent(m.subject)); if(m.body) q.push('body='+encodeURIComponent(m.body));
+      return 'mailto:'+m.to.trim()+(q.length?'?'+q.join('&'):''); }
+    case 'phone': { const p=s.phone,n=digits(p.number); if(!n) return ''; return p.mode==='sms'?`SMSTO:${n}:${p.message}`:`tel:${n}`; }
+    case 'location': { const q=s.location.query.trim(); if(!q) return '';
+      const m=q.match(/^\s*(-?\d{1,2}(?:\.\d+)?)\s*,\s*(-?\d{1,3}(?:\.\d+)?)\s*$/);
+      return 'https://www.google.com/maps/search/?api=1&query='+(m?`${m[1]},${m[2]}`:encodeURIComponent(q)); }
+    case 'event': { const e=s.event; if(!e.title.trim()||!e.start) return '';
+      const L=['BEGIN:VEVENT',`SUMMARY:${esc(e.title.trim())}`,`DTSTART:${icsDate(e.start)}`];
+      if(e.end) L.push(`DTEND:${icsDate(e.end)}`);
+      if(e.location.trim()) L.push(`LOCATION:${esc(e.location.trim())}`);
+      if(e.desc.trim()) L.push(`DESCRIPTION:${esc(e.desc.trim())}`);
+      L.push('END:VEVENT'); return L.join('\r\n'); }
+    case 'vcard': { const v=s.vcard;
+      const any=[v.first,v.last,v.org,...v.phones.map(p=>p.value),...v.emails.map(e=>e.value)].some(x=>x&&x.trim());
+      return any?buildVCard(v):''; }
+  }
+  return '';
+}
+const EMPTY_MSG={url:'Type a link to build your code.',text:'Type some text to build your code.',wifi:'Add the network name to build your code.',
+  whatsapp:'Add a WhatsApp number to build your code.',email:'Add an email address to build your code.',phone:'Add a phone number to build your code.',
+  location:'Add an address or coordinates to build your code.',event:'Add an event name and start time to build your code.',vcard:'Add a name, phone or email to build the contact card.'};
+
+/* ================= geometry (module units) ================= */
+function rr(x,y,w,h,r){
+  const m=Math.min(w,h)/2, [a,b,c,d]=r.map(v=>Math.min(v,m));
+  return `M${x+a} ${y}H${x+w-b}A${b} ${b} 0 0 1 ${x+w} ${y+b}V${y+h-c}A${c} ${c} 0 0 1 ${x+w-c} ${y+h}H${x+d}A${d} ${d} 0 0 1 ${x} ${y+h-d}V${y+a}A${a} ${a} 0 0 1 ${x+a} ${y}Z`;
+}
+const circ=(cx,cy,r)=>`M${cx-r} ${cy}a${r} ${r} 0 1 0 ${2*r} 0a${r} ${r} 0 1 0 ${-2*r} 0Z`;
+const diam=(x,y,s)=>`M${x+s/2} ${y}L${x+s} ${y+s/2}L${x+s/2} ${y+s}L${x} ${y+s/2}Z`;
+function modulesPath(shape,dark,rows,cols){
+  let d='';
+  for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
+    if(!dark(r,c)) continue;
+    const u=dark(r-1,c),D=dark(r+1,c),l=dark(r,c-1),R=dark(r,c+1);
+    switch(shape){
+      case 'square': d+=`M${c} ${r}h1v1h-1Z`; break;
+      case 'dots': d+=circ(c+.5,r+.5,.43); break;
+      case 'soft': d+=rr(c+.04,r+.04,.92,.92,[.3,.3,.3,.3]); break;
+      case 'diamond': d+=diam(c-.02,r-.02,1.04); break;
+      case 'vbars': d+=rr(c+.07,r,.86,1,[!u?.43:0,!u?.43:0,!D?.43:0,!D?.43:0]); break;
+      case 'hbars': d+=rr(c,r+.07,1,.86,[!l?.43:0,!R?.43:0,!R?.43:0,!l?.43:0]); break;
+      default: { const k=.5; d+=rr(c,r,1,1,[!u&&!l?k:0,!u&&!R?k:0,!D&&!R?k:0,!D&&!l?k:0]); }
+    }
+  }
+  return d;
+}
+const mirX=([a,b,c,d])=>[b,a,d,c], mirY=([a,b,c,d])=>[d,c,b,a];
+function orient(r,pos){ return pos==='tr'?mirX(r):pos==='bl'?mirY(r):r; }
+function eyeFramePath(x,y,shape,pos){
+  const R={square:[0,0],rounded:[2,1.2],circle:[3.5,2.5],leaf:[2.6,1.6]}[shape]||[0,0];
+  const o=shape==='leaf'?orient([R[0],0,R[0],0],pos):[R[0],R[0],R[0],R[0]];
+  const i=shape==='leaf'?orient([R[1],0,R[1],0],pos):[R[1],R[1],R[1],R[1]];
+  return rr(x,y,7,7,o)+rr(x+1,y+1,5,5,i);
+}
+function eyeBallPath(x,y,shape,pos){
+  if(shape==='diamond') return diam(x+1.85,y+1.85,3.3);
+  if(shape==='circle') return circ(x+3.5,y+3.5,1.5);
+  const r={square:0,rounded:.9,leaf:1.5}[shape]||0;
+  return rr(x+2,y+2,3,3,shape==='leaf'?orient([r,0,r,0],pos):[r,r,r,r]);
+}
+
+/* ================= model ================= */
+const mctx=document.createElement('canvas').getContext('2d');
+const FONT='"Figtree", Arial, sans-serif';
+function build(s,logoImg){
+  const payload=buildPayload(s); if(!payload) return {empty:true,payload:''};
+  const st=s.style, ecc=logoImg?'H':st.ecc;
+  const qr=qrcode(0,ecc); qr.addData(payload); qr.make();
+  const n=qr.getModuleCount(), m=+st.margin, t=n+2*m;
+  const inFinder=(r,c)=>(r<7&&c<7)||(r<7&&c>=n-7)||(r>=n-7&&c<7);
+  let box=null;
+  if(logoImg){ let sz=Math.round(n*st.logoSize/100); if((n-sz)%2) sz++; const o=(n-sz)/2; box={x:o,y:o,s:sz}; }
+  const inBox=(r,c)=>box&&st.logoClear&&r>=box.y&&r<box.y+box.s&&c>=box.x&&c<box.x+box.s;
+  const dark=(r,c)=>r>=0&&c>=0&&r<n&&c<n&&qr.isDark(r,c)&&!inFinder(r,c)&&!inBox(r,c);
+  const mods=modulesPath(st.shape,dark,n,n);
+  let frames='',balls='';
+  [[0,0,'tl'],[n-7,0,'tr'],[0,n-7,'bl']].forEach(([x,y,p])=>{frames+=eyeFramePath(x,y,st.eyeFrame,p); balls+=eyeBallPath(x,y,st.eyeBall,p);});
+  // layout
+  let W=t,H=t,qx=0,qy=0,label=null; const f=st.frame, txt=(st.frameText||'').trim();
+  if(f==='bottom'||f==='top'||f==='outline'){
+    const b=f==='outline'?1.4:1.3, L=Math.max(6,t*.2);
+    W=t+2*b; H=t+2*b+L-(f==='outline'?0:b);
+    qx=b; qy=f==='top'?L:b;
+    let fs=L*.44; mctx.font=`800 100px ${FONT}`; const w100=Math.max(1,mctx.measureText(txt||' ').width)/100*1.04;
+    fs=Math.min(fs,(W*.84)/w100);
+    const cy=f==='top'?L/2+b*.2:(f==='outline'?t+2*b+L*.42:t+b+(L-b)/2+b*.5);
+    label={text:txt,x:W/2,y:cy,fs,b,L};
+  }
+  return {payload,qr,n,m,t,W,H,qx,qy,mods,frames,balls,box,label,ecc,frame:f};
+}
+function fillSpec(st,n){
+  if(st.fill==='solid') return st.fg;
+  if(st.fill==='radial') return {type:'radial',cx:n/2,cy:n/2,r:n*.72,c1:st.fg,c2:st.fg2};
+  const v={diag:[0,0,n,n],down:[0,0,0,n],right:[0,0,n,0]}[st.dir]||[0,0,n,n];
+  return {type:'linear',x1:v[0],y1:v[1],x2:v[2],y2:v[3],c1:st.fg,c2:st.fg2};
+}
+
+/* ---------- canvas renderer ---------- */
+function cpaint(ctx,p){ if(typeof p==='string') return p; let g;
+  if(p.type==='radial') g=ctx.createRadialGradient(p.cx,p.cy,0,p.cx,p.cy,p.r); else g=ctx.createLinearGradient(p.x1,p.y1,p.x2,p.y2);
+  g.addColorStop(0,p.c1); g.addColorStop(1,p.c2); return g; }
+function renderCanvas(M,s,logoImg,px,solidBg){
+  const st=s.style, sc=px/Math.max(M.W,M.H);
+  const cv=document.createElement('canvas'); cv.width=Math.round(M.W*sc); cv.height=Math.round(M.H*sc);
+  const ctx=cv.getContext('2d'); ctx.scale(sc,sc);
+  const bg=st.bg, transparent=st.transparent&&!solidBg;
+  if(solidBg&&st.transparent){ ctx.fillStyle='#FFFFFF'; ctx.fillRect(0,0,M.W,M.H); }
+  if(M.frame==='bottom'||M.frame==='top'){
+    ctx.fillStyle=st.frameColor; ctx.fill(new Path2D(rr(0,0,M.W,M.H,[2.6,2.6,2.6,2.6])));
+    ctx.fillStyle=st.transparent&&!solidBg?'#FFFFFF':bg; ctx.fill(new Path2D(rr(M.qx,M.qy,M.t,M.t,[1.4,1.4,1.4,1.4])));
+  } else if(M.frame==='outline'){
+    if(!transparent){ ctx.fillStyle=bg; ctx.fill(new Path2D(rr(0,0,M.W,M.H,[2.6,2.6,2.6,2.6]))); }
+    ctx.fillStyle=st.frameColor; ctx.fill(new Path2D(rr(0,0,M.W,M.t+2*M.label.b,[2.6,2.6,2.6,2.6])+rr(.7,.7,M.W-1.4,M.t+2*M.label.b-1.4,[2,2,2,2])),'evenodd');
+  } else if(!transparent){ ctx.fillStyle=bg; ctx.fillRect(0,0,M.W,M.H); }
+  ctx.save(); ctx.translate(M.qx+M.m,M.qy+M.m);
+  const main=cpaint(ctx,fillSpec(st,M.n));
+  ctx.fillStyle=main; ctx.fill(new Path2D(M.mods));
+  ctx.fillStyle=st.eyeCustom?st.eyeFrameColor:main; ctx.fill(new Path2D(M.frames),'evenodd');
+  ctx.fillStyle=st.eyeCustom?st.eyeBallColor:main; ctx.fill(new Path2D(M.balls));
+  if(M.box&&logoImg){ const b=M.box;
+    if(st.logoPlate){ ctx.fillStyle='#FFFFFF'; ctx.fill(new Path2D(rr(b.x-.3,b.y-.3,b.s+.6,b.s+.6,Array(4).fill(b.s*.2)))); }
+    const p=st.logoPlate?b.s*.12:0, sz=b.s-2*p, ar=(logoImg.naturalWidth||logoImg.width)/(logoImg.naturalHeight||logoImg.height)||1;
+    let w=sz,h=sz; if(ar>1) h=sz/ar; else w=sz*ar;
+    ctx.drawImage(logoImg,b.x+p+(sz-w)/2,b.y+p+(sz-h)/2,w,h); }
+  ctx.restore();
+  if(M.label&&M.label.text){ const L=M.label;
+    ctx.fillStyle=M.frame==='outline'?st.frameColor:st.frameTextColor; ctx.font=`800 ${L.fs}px ${FONT}`; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(L.text,L.x,L.y); }
+  return cv;
+}
+/* ---------- svg renderer ---------- */
+const xesc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function renderSVG(M,s,logoData,px){
+  const st=s.style, sc=px/Math.max(M.W,M.H), out=[], defs=[];
+  const p=fillSpec(st,M.n); let main=p;
+  if(typeof p!=='string'){ defs.push(p.type==='radial'
+    ?`<radialGradient id="qg" gradientUnits="userSpaceOnUse" cx="${p.cx}" cy="${p.cy}" r="${p.r}"><stop offset="0" stop-color="${p.c1}"/><stop offset="1" stop-color="${p.c2}"/></radialGradient>`
+    :`<linearGradient id="qg" gradientUnits="userSpaceOnUse" x1="${p.x1}" y1="${p.y1}" x2="${p.x2}" y2="${p.y2}"><stop offset="0" stop-color="${p.c1}"/><stop offset="1" stop-color="${p.c2}"/></linearGradient>`); main='url(#qg)'; }
+  if(M.frame==='bottom'||M.frame==='top'){
+    out.push(`<path d="${rr(0,0,M.W,M.H,[2.6,2.6,2.6,2.6])}" fill="${st.frameColor}"/>`,`<path d="${rr(M.qx,M.qy,M.t,M.t,[1.4,1.4,1.4,1.4])}" fill="${st.transparent?'#FFFFFF':st.bg}"/>`);
+  } else if(M.frame==='outline'){
+    if(!st.transparent) out.push(`<path d="${rr(0,0,M.W,M.H,[2.6,2.6,2.6,2.6])}" fill="${st.bg}"/>`);
+    out.push(`<path fill-rule="evenodd" d="${rr(0,0,M.W,M.t+2*M.label.b,[2.6,2.6,2.6,2.6])+rr(.7,.7,M.W-1.4,M.t+2*M.label.b-1.4,[2,2,2,2])}" fill="${st.frameColor}"/>`);
+  } else if(!st.transparent) out.push(`<rect width="${M.W}" height="${M.H}" fill="${st.bg}"/>`);
+  out.push(`<g transform="translate(${M.qx+M.m} ${M.qy+M.m})">`);
+  if(defs.length) out.push(`<defs>${defs.join('')}</defs>`);
+  out.push(`<path d="${M.mods}" fill="${main}"/>`,`<path d="${M.frames}" fill-rule="evenodd" fill="${st.eyeCustom?st.eyeFrameColor:main}"/>`,`<path d="${M.balls}" fill="${st.eyeCustom?st.eyeBallColor:main}"/>`);
+  if(M.box&&logoData){ const b=M.box, pd=st.logoPlate?b.s*.12:0;
+    if(st.logoPlate) out.push(`<path d="${rr(b.x-.3,b.y-.3,b.s+.6,b.s+.6,Array(4).fill(b.s*.2))}" fill="#FFFFFF"/>`);
+    out.push(`<image href="${logoData}" x="${b.x+pd}" y="${b.y+pd}" width="${b.s-2*pd}" height="${b.s-2*pd}" preserveAspectRatio="xMidYMid meet"/>`); }
+  out.push('</g>');
+  if(M.label&&M.label.text){ const L=M.label;
+    out.push(`<text x="${L.x}" y="${L.y}" font-family='Figtree, Arial, sans-serif' font-weight="800" font-size="${L.fs}" text-anchor="middle" dominant-baseline="central" fill="${M.frame==='outline'?st.frameColor:st.frameTextColor}">${xesc(L.text)}</text>`); }
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${M.W} ${M.H}" width="${Math.round(M.W*sc)}" height="${Math.round(M.H*sc)}">${out.join('')}</svg>`;
+}
+
+/* ================= scan check ================= */
+function lum(hex){ const v=parseInt(hex.slice(1),16); return [v>>16,(v>>8)&255,v&255].map(x=>{x/=255;return x<=.03928?x/12.92:Math.pow((x+.055)/1.055,2.4);}).reduce((a,x,i)=>a+x*[.2126,.7152,.0722][i],0); }
+const contrast=(a,b)=>{const A=lum(a),B=lum(b);return (Math.max(A,B)+.05)/(Math.min(A,B)+.05);};
+function scanCheck(M,s){
+  const st=s.style, items=[], bg=st.transparent?'#FFFFFF':st.bg;
+  const fgs=[st.fg]; if(st.fill!=='solid') fgs.push(st.fg2); if(st.eyeCustom) fgs.push(st.eyeFrameColor,st.eyeBallColor);
+  const cr=Math.min(...fgs.map(c=>contrast(c,bg)));
+  const inverted=fgs.some(c=>lum(c)>lum(bg));
+  items.push(cr>=4.5&&!inverted?['ok',`Contrast ${cr.toFixed(1)}:1`,'strong']:cr<3?['bad',`Contrast ${cr.toFixed(1)}:1`,'too low, phones will struggle. Darken the code or lighten the background.']:
+    inverted?['warn','Light code on darker background','some older scanners can\'t read inverted codes.']:['warn',`Contrast ${cr.toFixed(1)}:1`,'readable, but darker is safer for print.']);
+  if(st.transparent) items.push(['warn','Transparent background','print it on a light, plain surface.']);
+  const m=+st.margin;
+  items.push(m>=4?['ok',`Quiet zone ${m} modules`,'standard']:m>=2?['warn',`Quiet zone ${m} modules`,'fine on screens; leave white space around it in print.']:['bad',`Quiet zone ${m} module${m===1?'':'s'}`,'too tight. Use at least 2.']);
+  const ver=(M.n-17)/4;
+  items.push(ver<=15?['ok',`Version ${ver} · ${M.n}×${M.n}`,'easy to scan']:ver<=25?['warn',`Version ${ver} · ${M.n}×${M.n}`,'dense. Print larger or remove optional fields.']:['bad',`Version ${ver} · ${M.n}×${M.n}`,'very dense. Shorten the content.']);
+  if(M.box){ items.push(st.logoSize<=24&&st.logoClear?['ok',`Logo ${st.logoSize}% wide`,'recovered by Max damage tolerance']:
+    !st.logoClear?['warn','Logo drawn over modules','turn on "Clear the modules behind the logo".']:['warn',`Logo ${st.logoSize}% wide`,'large. Test with a few phones, or shrink it.']); }
+  if(['diamond','vbars','hbars'].includes(st.shape)||st.eyeBall==='diamond') items.push(['ok','Stylised shapes','read fine on current phones. Test once before printing.']);
+  const lvl=items.some(i=>i[0]==='bad')?'bad':items.some(i=>i[0]==='warn')?'warn':'ok';
+  const cm=Math.max(2,Math.ceil(M.t*.04*2)/2);
+  return {lvl,items,cm};
+}
+
+/* ================= UI build ================= */
+let S=normalize((()=>{try{return JSON.parse(store.get(KEY));}catch(e){return null;}})());
+let logoData=store.get(KEY+'.logo'), logoImg=null, current=null, dtab=store.get(KEY+'.dtab')||'presets';
+function save(){ store.set(KEY,JSON.stringify(S)); }
+
+$('#types').innerHTML=TYPES.map(t=>`<button class="type" data-type="${t.id}" aria-pressed="false">${t.icon}<span>${t.label}</span></button>`).join('');
+function tileSVG(kind,val){
+  if(kind==='shape'){ const P=[[1,1,0,1,1],[1,0,1,1,0],[0,1,1,0,1],[1,1,0,1,1],[1,0,1,0,1]];
+    return `<svg viewBox="-.3 -.3 5.6 5.6"><path d="${modulesPath(val,(r,c)=>r>=0&&c>=0&&r<5&&c<5&&!!P[r][c],5,5)}"/></svg>`; }
+  if(kind==='eyeFrame') return `<svg viewBox="-.5 -.5 8 8"><path fill-rule="evenodd" d="${eyeFramePath(0,0,val,'tl')}"/><path opacity=".35" d="${eyeBallPath(0,0,'square','tl')}"/></svg>`;
+  if(kind==='eyeBall') return `<svg viewBox="-.5 -.5 8 8"><path opacity=".25" fill-rule="evenodd" d="${eyeFramePath(0,0,'square','tl')}"/><path d="${eyeBallPath(0,0,val,'tl')}"/></svg>`;
+  if(kind==='frame'){ const q='<rect x="7" y="7" width="10" height="10" rx="1" opacity=".35"/>';
+    if(val==='none') return `<svg viewBox="0 0 24 24">${q}</svg>`;
+    if(val==='outline') return `<svg viewBox="0 0 24 24"><path fill-rule="evenodd" d="M4 2h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM4 3.5a.5.5 0 0 0-.5.5v14a.5.5 0 0 0 .5.5h16a.5.5 0 0 0 .5-.5V4a.5.5 0 0 0-.5-.5z" transform="translate(0 -1.5)"/><rect x="7" y="4" width="10" height="10" rx="1" opacity=".35"/><rect x="6" y="20" width="12" height="2" rx="1"/></svg>`;
+    const top=val==='top'; return `<svg viewBox="0 0 24 24"><rect x="3" y="1" width="18" height="22" rx="3"/><rect x="5" y="${top?8:3}" width="14" height="13" rx="1.5" fill="#fff"/><rect x="8" y="${top?11:6}" width="8" height="7" rx="1" opacity=".35"/><rect x="7" y="${top?3.5:18.5}" width="10" height="2" rx="1" fill="#fff"/></svg>`; }
+}
+[['shape',SHAPES],['eyeFrame',EYEF],['eyeBall',EYEB],['frame',FRAMES]].forEach(([k,list])=>{
+  $('#t-'+k).innerHTML=list.map(([v,l])=>`<button class="tile" data-set="${k}" data-val="${v}" aria-pressed="false">${tileSVG(k,v)}<span>${l}</span></button>`).join('');
+});
+$('#quick').innerHTML=QUICK.map(c=>`<button data-quick="${c}" style="background:${c}" aria-label="Use colour ${c}" title="${c}"></button>`).join('');
+$('#ftchips').innerHTML=FTEXTS.map(t=>`<button data-ftext="${t}">${t}</button>`).join('');
+function renderPresets(){
+  const demo={type:'url',url:{value:'https://qrforge.app/demo'},style:null};
+  $('#presets').innerHTML=PRESETS.map((p,i)=>{
+    demo.style=Object.assign(clone(DEFAULT_STYLE),{margin:2,frame:'none'},p.s);
+    const M=build(demo,null); return `<button class="preset" data-preset="${i}"><img alt="" src="${renderCanvas(M,demo,null,180).toDataURL()}">${p.name}</button>`;
+  }).join('');
+}
+
+function renderList(name){
+  const box=$(`[data-list="${name}"]`), def=LISTS[name]; box.innerHTML='';
+  S.vcard[name].forEach((item,i)=>{
+    const row=document.createElement('div'); row.className='li';
+    const sel=document.createElement('select'); sel.id=`${name}-${i}-type`; sel.setAttribute('aria-label','Type');
+    def.types.forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;sel.appendChild(o);});
+    sel.value=item.type; Object.assign(sel.dataset,{li:name,i,f:'type'});
+    const inp=document.createElement('input'); inp.type=def.input; inp.id=`${name}-${i}-value`; inp.setAttribute('aria-label',{phones:'Phone number',emails:'Email address',websites:'Website',socials:'Handle or link'}[name]);
+    inp.value=item.value; inp.placeholder=name==='socials'?SOCIAL[item.type].ph:def.ph; Object.assign(inp.dataset,{li:name,i,f:'value'}); if(def.v) inp.dataset.v=def.v;
+    const del=document.createElement('button'); del.className='icon-btn'; del.textContent='×'; Object.assign(del.dataset,{del:name,i}); del.setAttribute('aria-label','Remove');
+    row.append(sel,inp,del); box.appendChild(row);
+    if(def.v) validate(inp);
+  });
+  if(!S.vcard[name].length){ const p=document.createElement('p'); p.className='hint'; p.textContent='None added yet.'; box.appendChild(p); }
+}
+function renderExtras(){ ['addr','bday','note'].forEach(k=>{ $('#g-'+k).hidden=!S.vcard.extras[k]; $(`[data-extra="${k}"]`).hidden=S.vcard.extras[k]; }); }
+
+const getP=(o,p)=>p.split('.').reduce((a,k)=>a==null?a:a[k],o);
+const setP=(o,p,v)=>{const ks=p.split('.');const last=ks.pop();ks.reduce((a,k)=>a[k],o)[last]=v;};
+const VALID={email:v=>/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v),phone:v=>/^\+?[\d\s().-]{6,}$/.test(v)&&v.replace(/\D/g,'').length>=6,url:v=>/^([a-z][a-z0-9+.-]*:\/\/)?[^\s.]+\.[^\s]{2,}/i.test(v)||/^[a-z][a-z0-9+.-]*:/i.test(v)};
+const VMSG={email:'That doesn\'t look like an email address.',phone:'Use digits, with the country code, e.g. +971 50 123 4567.',url:'That doesn\'t look like a web address.'};
+function validate(el){
+  const kind=el.dataset.v; if(!kind) return; const v=el.value.trim(); const bad=v&&!VALID[kind](v);
+  el.classList.toggle('invalid',!!bad); el.setAttribute('aria-invalid',bad?'true':'false');
+  let msg=el.parentElement.querySelector(`.ferr[data-for="${el.id}"]`);
+  if(bad&&!msg){ msg=document.createElement('p'); msg.className='ferr'; msg.dataset.for=el.id; msg.textContent=VMSG[kind]; el.insertAdjacentElement(el.parentElement.classList.contains('li')?'afterend':'afterend',msg);
+    if(el.parentElement.classList.contains('li')){ msg.style.gridColumn='1/-1'; } }
+  if(!bad&&msg) msg.remove();
+}
+
+function syncColor(k){ const v=S.style[k]; $$(`[data-c="${k}"]`).forEach(e=>e.value=v); $$(`[data-ct="${k}"]`).forEach(e=>{ if(document.activeElement!==e) e.value=v.toUpperCase(); }); }
+function fillForm(){
+  $$('[data-k]').forEach(el=>{const v=getP(S,el.dataset.k); if(el.type==='checkbox') el.checked=!!v; else el.value=v??''; validate(el);});
+  ['phones','emails','websites','socials'].forEach(renderList); renderExtras();
+  fillDesign(); setType(S.type,false); $('#example-chip').hidden=!S.example;
+}
+function fillDesign(){
+  const st=S.style;
+  $$('[data-s]').forEach(el=>{ if(document.activeElement!==el) el.value=st[el.dataset.s]; });
+  $$('[data-sc]').forEach(el=>el.checked=!!st[el.dataset.sc]);
+  ['fg','fg2','bg','eyeFrameColor','eyeBallColor','frameColor','frameTextColor'].forEach(syncColor);
+}
+function refreshDesignUI(){
+  const st=S.style;
+  $$('[data-set]').forEach(b=>b.setAttribute('aria-pressed',st[b.dataset.set]===b.dataset.val));
+  $$('#fillmode button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.fill===st.fill));
+  $$('#pmode button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.pmode===S.phone.mode));
+  $('#f-fg2').hidden=st.fill==='solid'; $('#f-dir').hidden=st.fill!=='linear';
+  $('#l-fg').textContent=st.fill==='solid'?'Code colour':'Gradient start';
+  $('#eyecolors').hidden=!st.eyeCustom;
+  $('#s-margin-v').textContent=`· ${st.margin}`; $('#s-logosize-v').textContent=`· ${st.logoSize}%`;
+  $('#s-ecc').disabled=!!logoImg; if(logoImg) $('#s-ecc').value='H'; else $('#s-ecc').value=st.ecc;
+  $('#ecc-hint').textContent=logoImg?'Locked to Max while a logo is added.':'Higher survives scratches and logos, but makes a denser code.';
+  $('#logo-opts').hidden=!logoImg;
+  const lt=$('#lthumb'); if(logoData&&logoImg){ lt.style.backgroundImage=`url("${logoData}")`; lt.textContent=''; $('#drop-t').textContent='Replace logo'; $('#drop-s').textContent='Drop a new image here or click to choose another file.'; }
+  else { lt.style.backgroundImage=''; lt.textContent='+'; $('#drop-t').textContent='Drop your logo here or click to upload'; $('#drop-s').textContent='PNG, JPG or SVG. A square logo with a transparent background looks best.'; }
+  $('#frame-opts').hidden=st.frame==='none'; $('#f-ftc').hidden=st.frame==='outline';
+  $('#sms-field').hidden=S.phone.mode!=='sms';
+  $$('.dtab').forEach(b=>b.setAttribute('aria-selected',b.dataset.dtab===dtab));
+  $$('[data-dpane]').forEach(p=>p.hidden=p.dataset.dpane!==dtab);
+}
+
+/* ================= render loop ================= */
+let raf=0; function update(){ if(raf) return; raf=requestAnimationFrame(()=>{raf=0; render();}); }
+function render(){
+  refreshDesignUI();
+  $('#tag').textContent=TAGS[S.type];
+  $('#dl-vcf').hidden=S.type!=='vcard';
+  let M; try{ M=build(S,logoImg); }catch(e){ M={error:true}; }
+  const img=$('#qr-img'), empty=$('#qr-empty');
+  if(M.empty||M.error){
+    current=null; img.hidden=true; empty.hidden=false; $('#scan').hidden=true; $('#stats').innerHTML='';
+    $('#qr-empty-t').textContent=M.error?'Too much content for one QR code. Remove some fields or shorten the text.':EMPTY_MSG[S.type];
+    $('#payload').textContent=M.payload||'(empty)'; exportsOn(false);
+    $('#mbar-img').removeAttribute('src'); $('#mbar-t').textContent=M.error?'Too much content':'Nothing to encode yet'; $('#mbar-s').textContent=M.error?'Shorten the content':'Fill in the form';
+    save(); return;
+  }
+  current=M; img.hidden=false; empty.hidden=true; exportsOn(true);
+  const url=renderCanvas(M,S,logoImg,640).toDataURL('image/png'); img.src=url; $('#mbar-img').src=url;
+  $('#payload').textContent=M.payload;
+  const bytes=new TextEncoder().encode(M.payload).length;
+  $('#stats').innerHTML=`<span><b>${M.n}×${M.n}</b> modules</span><span>Tolerance <b>${{L:'7%',M:'15%',Q:'25%',H:'30%'}[M.ecc]}</b></span><span><b>${bytes}</b> bytes</span>`;
+  const sc=scanCheck(M,S);
+  $('#scan').hidden=false; $('#scan-dot').className='dot '+(sc.lvl==='ok'?'':sc.lvl);
+  $('#scan-t').textContent={ok:'Scans well',warn:'Check before printing',bad:'Likely to fail'}[sc.lvl];
+  $('#scan-size').textContent=`Print ≥ ${sc.cm} cm`;
+  $('#scan-list').innerHTML=sc.items.map(([l,a,b])=>`<li><span class="dot ${l==='ok'?'':l}"></span><span>${a} <em>· ${b}</em></span></li>`).join('');
+  $('#mbar-t').textContent=TAGS[S.type]+' code ready'; $('#mbar-s').textContent={ok:'Scans well',warn:'Check before printing',bad:'Likely to fail'}[sc.lvl]+` · print ≥ ${sc.cm} cm`;
+  save();
+}
+function exportsOn(on){ ['#dl-png','#dl-svg','#dl-jpg','#copy-img','#dl-vcf','#save-lib','#mbar-dl','#copy-text'].forEach(s=>$(s).disabled=!on); }
+
+/* ================= toast + undo ================= */
+let toastT;
+function toast(msg,undo){
+  const t=$('#toast'),b=$('#toast-b'); $('#toast-t').textContent=msg; b.hidden=!undo; t.classList.toggle('has-act',!!undo);
+  b.onclick=()=>{ t.classList.remove('show'); undo&&undo(); };
+  t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),undo?5000:2400);
+}
+function snapshot(){ const snap=JSON.stringify(S), ld=logoData; return ()=>{ S=normalize(JSON.parse(snap)); setLogo(ld,false).then(()=>{fillForm(); update(); toast('Restored');}); }; }
+
+/* ================= downloads ================= */
+function fileBase(){ const n=libName(S); return 'qr-'+(n.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40)||S.type); }
+let dlNS; const dlReady=window.claude&&window.claude.use?window.claude.use('downloads').then(ns=>dlNS=ns).catch(()=>dlNS=null):Promise.resolve(null);
+async function download(blob,name){
+  if(window.claude){ await dlReady;
+    if(dlNS){ try{ await dlNS.save({filename:name,data:blob}); toast('Saved '+name); }
+      catch(e){ if(e&&e.code==='declined') return;
+        toast(e&&e.code==='rejected_extension'?'This file type can\'t be saved here. Use "Copy the encoded text" instead.':'Download blocked here. Right-click or long-press the code to save it.'); }
+      return; } }
+  try{ const u=URL.createObjectURL(blob),a=document.createElement('a'); a.href=u; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),4000); toast('Downloading '+name); }
+  catch(e){ toast('Download blocked. Right-click or long-press the code to save it.'); }
+}
+const fontsReady=()=>document.fonts&&document.fonts.load?Promise.all([document.fonts.load(`800 20px Figtree`)]).catch(()=>{}):Promise.resolve();
+const canvasBlob=(cv,type,q)=>new Promise(r=>cv.toBlob(r,type,q));
+async function exportPNG(){ if(!current) return; await fontsReady(); const px=+S.style.size; download(await canvasBlob(renderCanvas(current,S,logoImg,px),'image/png'),`${fileBase()}-${px}.png`); }
+$('#dl-png').onclick=exportPNG; $('#mbar-dl').onclick=exportPNG;
+$('#dl-jpg').onclick=async()=>{ if(!current) return; await fontsReady(); const px=+S.style.size; download(await canvasBlob(renderCanvas(current,S,logoImg,px,true),'image/jpeg',.95),`${fileBase()}-${px}.jpg`); };
+$('#dl-svg').onclick=()=>{ if(!current) return; download(new Blob([renderSVG(current,S,logoData,+S.style.size)],{type:'image/svg+xml'}),fileBase()+'.svg'); };
+$('#dl-vcf').onclick=()=>{ if(!current) return; download(new Blob([current.payload],{type:'text/vcard'}),fileBase().replace(/^qr-/,'')+'.vcf'); };
+$('#copy-img').onclick=()=>{ if(!current) return;
+  try{ const blob=fontsReady().then(()=>canvasBlob(renderCanvas(current,S,logoImg,1024),'image/png'));
+    navigator.clipboard.write([new ClipboardItem({'image/png':blob})]).then(()=>toast('Image copied. Paste it into a doc or chat.'),()=>toast('Your browser blocked image copy. Use the PNG download instead.')); }
+  catch(e){ toast('Your browser blocked image copy. Use the PNG download instead.'); } };
+$('#copy-text').onclick=()=>{ if(!current) return; const txt=current.payload;
+  const fallback=()=>{ const d=$('details'); d.open=true; const r=document.createRange(); r.selectNodeContents($('#payload')); const s=getSelection(); s.removeAllRanges(); s.addRange(r); toast('Selected. Press Ctrl/Cmd + C to copy.'); };
+  try{ navigator.clipboard.writeText(txt).then(()=>toast('Encoded text copied'),fallback); }catch(e){ fallback(); } };
+
+/* ================= library ================= */
+function libLoad(){ try{ return JSON.parse(store.get(LIBKEY))||[]; }catch(e){ return []; } }
+function libName(s){
+  switch(s.type){
+    case 'vcard': return [s.vcard.first,s.vcard.last].join(' ').trim()||s.vcard.org||'Contact';
+    case 'url': { const u=withScheme(s.url.value); try{ return new URL(u).hostname.replace(/^www\./,''); }catch(e){ return 'Link'; } }
+    case 'wifi': return 'Wi-Fi '+(s.wifi.ssid||'');
+    case 'whatsapp': return 'WhatsApp '+s.whatsapp.number;
+    case 'email': return 'Email '+s.email.to;
+    case 'phone': return (s.phone.mode==='sms'?'SMS ':'Call ')+s.phone.number;
+    case 'location': return s.location.query.slice(0,32)||'Location';
+    case 'event': return s.event.title||'Event';
+    default: return (s.text.value||'Text').slice(0,32);
+  }
+}
+function renderLib(){
+  const L=libLoad(), g=$('#lib-grid');
+  if(!L.length){ g.innerHTML='<div class="lib-empty">Codes you save appear here, so you can come back and tweak them. Use <b>Save to my codes</b> after designing one.</div>'; return; }
+  g.innerHTML=''; L.forEach(it=>{
+    const c=document.createElement('div'); c.className='card';
+    c.innerHTML=`<img alt=""><div style="min-width:0"><input type="text" aria-label="Code name"><small></small><div class="acts"><button class="btn small" data-lload>Open</button><button class="btn small" data-ldel>Delete</button></div></div>`;
+    c.querySelector('img').src=it.thumb; const inp=c.querySelector('input'); inp.id='lib-'+it.id; inp.value=it.name;
+    c.querySelector('small').textContent=`${TAGS[it.state.type]} · ${new Date(it.saved).toLocaleDateString(undefined,{day:'numeric',month:'short'})}`;
+    inp.onchange=()=>{ const L2=libLoad(); const x=L2.find(z=>z.id===it.id); if(x){ x.name=inp.value.trim()||x.name; store.set(LIBKEY,JSON.stringify(L2)); toast('Renamed'); } };
+    c.querySelector('[data-lload]').onclick=async()=>{ const undo=snapshot(); S=normalize(clone(it.state)); S.example=false; await setLogo(it.logo||null,false); fillForm(); update(); toast(`Opened "${it.name}"`,undo); $('#h-content').scrollIntoView({block:'start'}); };
+    c.querySelector('[data-ldel]').onclick=()=>{ const L2=libLoad(), idx=L2.findIndex(z=>z.id===it.id); if(idx<0) return; const [gone]=L2.splice(idx,1); store.set(LIBKEY,JSON.stringify(L2)); renderLib();
+      toast(`Deleted "${gone.name}"`,()=>{ const L3=libLoad(); L3.splice(idx,0,gone); store.set(LIBKEY,JSON.stringify(L3)); renderLib(); }); };
+    g.appendChild(c);
+  });
+}
+$('#save-lib').onclick=()=>{
+  if(!current) return; const L=libLoad();
+  const item={id:Date.now().toString(36),name:libName(S),saved:Date.now(),state:clone(S),logo:logoData||null,thumb:renderCanvas(current,S,logoImg,160).toDataURL()};
+  item.state.example=false; L.unshift(item); if(L.length>40) L.length=40;
+  if(!store.set(LIBKEY,JSON.stringify(L))){ item.logo=null; if(!store.set(LIBKEY,JSON.stringify(L))){ toast('Browser storage is full or blocked, so the code wasn\'t saved.'); return; } toast('Saved without the logo (storage is full)'); }
+  else toast(`Saved "${item.name}" to My codes`);
+  renderLib();
+};
+
+/* ================= logo ================= */
+function loadImg(src){ return new Promise(res=>{ if(!src) return res(null); const im=new Image(); im.onload=()=>res(im); im.onerror=()=>res(null); im.src=src; }); }
+async function setLogo(data,persist=true){
+  const im=await loadImg(data); logoData=im?data:null; logoImg=im;
+  if(persist){ if(logoData){ if(!store.set(KEY+'.logo',logoData)) store.del(KEY+'.logo'); } else store.del(KEY+'.logo'); }
+  return im;
+}
+function readLogo(file){
+  if(!file) return; if(!/^image\//.test(file.type)){ toast('That file isn\'t an image. Use PNG, JPG or SVG.'); return; }
+  const r=new FileReader();
+  r.onload=async()=>{ const undo=snapshot(); const im=await setLogo(r.result); if(!im){ toast('Couldn\'t read that image. Try a PNG.'); return; } update(); toast('Logo added · tolerance set to Max',undo); };
+  r.readAsDataURL(file);
+}
+$('#s-logo').onchange=e=>{ readLogo(e.target.files[0]); e.target.value=''; };
+const drop=$('#drop');
+['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('over');}));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('over');}));
+drop.addEventListener('drop',e=>readLogo(e.dataTransfer.files[0]));
+$('#logo-rm').onclick=async()=>{ const undo=snapshot(); await setLogo(null); update(); toast('Logo removed',undo); };
+
+/* ================= events ================= */
+function setType(type,doUpdate=true){
+  S.type=type;
+  $$('.type').forEach(t=>t.setAttribute('aria-pressed',t.dataset.type===type));
+  $$('[data-pane]').forEach(p=>p.hidden=p.dataset.pane!==type);
+  if(doUpdate) update();
+}
+document.addEventListener('input',e=>{
+  const el=e.target;
+  if(el.dataset.k){ setP(S,el.dataset.k,el.type==='checkbox'?el.checked:el.value); validate(el); update(); }
+  else if(el.dataset.li){ const item=S.vcard[el.dataset.li][+el.dataset.i]; item[el.dataset.f]=el.value; validate(el);
+    if(el.dataset.li==='socials'&&el.dataset.f==='type') $(`#socials-${el.dataset.i}-value`).placeholder=SOCIAL[el.value].ph; update(); }
+  else if(el.dataset.s){ S.style[el.dataset.s]=el.type==='range'?+el.value:el.value; update(); }
+  else if(el.dataset.sc){ S.style[el.dataset.sc]=el.checked; update(); }
+  else if(el.dataset.c){ S.style[el.dataset.c]=el.value.toUpperCase(); syncColor(el.dataset.c); update(); }
+  else if(el.dataset.ct){ let v=el.value.trim(); if(!v.startsWith('#')) v='#'+v; if(/^#[0-9a-f]{6}$/i.test(v)){ S.style[el.dataset.ct]=v.toUpperCase(); syncColor(el.dataset.ct); update(); } }
+});
+document.addEventListener('change',e=>{ const el=e.target;
+  if(el.type==='checkbox'&&el.dataset.k){ setP(S,el.dataset.k,el.checked); update(); }
+  if(el.dataset.ct) syncColor(el.dataset.ct); });
+document.addEventListener('focusout',e=>{ if(e.target.dataset&&e.target.dataset.ct) syncColor(e.target.dataset.ct); });
+document.addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  const d=b.dataset;
+  if(d.type){ setType(d.type); }
+  else if(d.add){ S.vcard[d.add].push({type:LISTS[d.add].def,value:''}); renderList(d.add); $(`#${d.add}-${S.vcard[d.add].length-1}-value`).focus(); update(); }
+  else if(d.del){ const name=d.del,i=+d.i,[gone]=S.vcard[name].splice(i,1); renderList(name); update();
+    if(gone&&gone.value) toast('Field removed',()=>{ S.vcard[name].splice(i,0,gone); renderList(name); update(); }); }
+  else if(d.extra){ S.vcard.extras[d.extra]=true; renderExtras(); const f=$(`#g-${d.extra} input, #g-${d.extra} textarea`); f&&f.focus(); update(); }
+  else if(d.removeExtra){ S.vcard.extras[d.removeExtra]=false; renderExtras(); update(); }
+  else if(d.set){ S.style[d.set]=d.val; if(d.set==='frame'&&d.val!=='none'&&!S.style.frameText) S.style.frameText='SCAN ME'; update(); }
+  else if(d.fill){ S.style.fill=d.fill; update(); }
+  else if(d.pmode){ S.phone.mode=d.pmode; update(); }
+  else if(d.dtab){ dtab=d.dtab; store.set(KEY+'.dtab',dtab); update(); }
+  else if(d.quick){ S.style.fg=d.quick.toUpperCase(); syncColor('fg'); update(); }
+  else if(d.ftext){ S.style.frameText=d.ftext; $('#s-ftext').value=d.ftext; update(); }
+  else if(d.preset){ const p=PRESETS[+d.preset], undo=snapshot(); Object.assign(S.style,p.s,{transparent:false}); fillDesign(); update(); toast(`Applied ${p.name}`,undo); }
+});
+$('#clear-btn').onclick=()=>{ const undo=snapshot(); S.example=false; S[S.type]=EMPTY[S.type](); fillForm(); update(); toast('Form cleared',undo); };
+$('#reset-design').onclick=async()=>{ const undo=snapshot(); S.style=clone(DEFAULT_STYLE); await setLogo(null); fillDesign(); update(); toast('Design reset',undo); };
+document.addEventListener('focusin',e=>{ if(S.example&&e.target.closest('[data-pane]')&&e.target.matches('input,textarea')){ S.example=false; $('#example-chip').hidden=true; save(); } });
+$('#mbar-view').onclick=()=>$('#preview').scrollIntoView({block:'start'});
+if('IntersectionObserver' in window){ new IntersectionObserver(es=>es.forEach(en=>$('#mbar').classList.toggle('away',en.isIntersecting)),{threshold:.25}).observe($('#preview')); }
+
+/* ================= boot ================= */
+(async()=>{
+  await setLogo(logoData,false);
+  fillForm(); renderLib(); renderPresets(); render();
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>{ renderPresets(); update(); });
+})();
+})();
+</script>
+</body>
+</html>
