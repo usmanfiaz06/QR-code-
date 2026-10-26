@@ -229,6 +229,9 @@ input[dir="rtl"],textarea[dir="rtl"]{font-family:"IBM Plex Sans Arabic",var(--f-
 .cardfig figcaption{display:flex;justify-content:space-between;gap:8px;font:700 11px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .cardfig img{width:100%;height:auto;display:block;border-radius:3px;box-shadow:0 1px 1px rgba(11,15,26,.1),0 12px 26px rgba(11,15,26,.18)}
 .checks{display:grid;gap:8px}
+.sizes{display:grid;grid-template-columns:1fr 1fr;gap:10px 20px}
+#sz-qr-hint.warn{color:var(--bad);font-weight:600}
+@media (max-width:520px){.sizes{grid-template-columns:minmax(0,1fr)}}
 /* footer */
 .site-foot{background:var(--ink);color:#E7EAF1;font:400 15px/1.5 var(--f-body);margin-top:12px;padding-block:52px 22px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));overflow:hidden}
 .foot-in{max-width:1220px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1.6fr) repeat(3,minmax(0,1fr));gap:32px}
@@ -632,6 +635,18 @@ input[aria-busy="true"]{background-image:linear-gradient(90deg,transparent,var(-
                 <p class="fprev" id="cd-fa-prev" dir="rtl"></p></div>
             </div>
             <p class="hint">Bilingual fonts such as Readex Pro, Cairo or IBM Plex Sans Arabic work in both boxes. Pick from the list or type any font name from <a href="https://fonts.google.com" target="_blank" rel="noopener">fonts.google.com</a>. Arabic fonts must support Arabic script.</p>
+          </div>
+          <div class="group">
+            <div class="group-h"><h3>Sizes</h3><button class="link-btn" id="sz-reset">Reset sizes</button></div>
+            <div class="sizes">
+              <div class="field"><label for="sz-name">Name <span class="range-v" id="sz-name-v"></span></label><input id="sz-name" type="range" min="70" max="140" step="5" data-cksz="name"></div>
+              <div class="field"><label for="sz-title">Job title <span class="range-v" id="sz-title-v"></span></label><input id="sz-title" type="range" min="70" max="140" step="5" data-cksz="title"></div>
+              <div class="field"><label for="sz-contact">Contact details <span class="range-v" id="sz-contact-v"></span></label><input id="sz-contact" type="range" min="70" max="140" step="5" data-cksz="contact"></div>
+              <div class="field"><label for="sz-tag">Tagline <span class="range-v" id="sz-tag-v"></span></label><input id="sz-tag" type="range" min="70" max="140" step="5" data-cksz="tag"></div>
+              <div class="field"><label for="sz-logo">Logo <span class="range-v" id="sz-logo-v"></span></label><input id="sz-logo" type="range" min="50" max="150" step="5" data-cksz="logo"></div>
+              <div class="field"><label for="sz-qr">QR code <span class="range-v" id="sz-qr-v"></span></label><input id="sz-qr" type="range" min="50" max="125" step="5" data-cksz="qr"></div>
+            </div>
+            <p class="hint" id="sz-qr-hint"></p>
           </div>
           <div class="group checks">
             <label class="check"><input type="checkbox" id="cd-tint" data-ck="tintLogo"> Recolour logo to the text colour</label>
@@ -1390,12 +1405,14 @@ const CKEY='qrforge.card.v1';
 const SIZES={us:{label:'3.5 × 2 in · US standard',w:88.9,h:50.8},eu:{label:'85 × 55 mm · Europe',w:85,h:55},gulf:{label:'90 × 50 mm · Gulf & Asia',w:90,h:50},w90:{label:'90 × 55 mm',w:90,h:55}};
 
 const PERSON=['nameEn','nameAr','titleEn','titleAr','phone','email'];
+const SZ_DEFAULT={name:100,title:100,contact:100,tag:100,logo:100,qr:100};
+const SZ=k=>((C.sz&&+C.sz[k])||100)/100;
 const CARD_DEFAULT={template:'split',back:'brand',size:'us',bg:'#F2ECE2',ink:'#1E352D',fontLatin:'Mulish',fontArabic:'IBM Plex Sans Arabic',
   tintLogo:true,qrWhite:true,qrShow:true,qrSource:'vcard',guides:false,dpi:'600',bleed:true,marks:true,
   nameEn:'',nameAr:'',titleEn:'',titleAr:'',company:'',phone:'',email:'',website:'',address:'',tagEn:'',tagAr:'',logo:null,mark:null,example:false};
-function cardExample(){ return Object.assign({},CARD_DEFAULT,{example:true,nameEn:'Alex Rivera',nameAr:'أليكس ريفيرا',titleEn:'Creative Director',titleAr:'المدير الإبداعي',
+function cardExample(){ return normCard({example:true,nameEn:'Alex Rivera',nameAr:'أليكس ريفيرا',titleEn:'Creative Director',titleAr:'المدير الإبداعي',
   company:'Northwind Studio',phone:'+971 50 123 4567',email:'alex@northwind.studio',website:'www.northwind.studio',tagEn:'Design that travels',tagAr:'تصميم يسافر'}); }
-const normCard=c=>{ const o=Object.assign({},CARD_DEFAULT,c||{}); if(!SIZES[o.size]) o.size='us'; if(!GF_OK.test(o.fontLatin||'')) o.fontLatin='Mulish'; if(!GF_OK.test(o.fontArabic||'')) o.fontArabic='IBM Plex Sans Arabic'; return o; };
+const normCard=c=>{ const o=Object.assign({},CARD_DEFAULT,c||{}); o.sz=Object.assign({},SZ_DEFAULT,(c&&c.sz)||{}); if(!SIZES[o.size]) o.size='us'; if(!GF_OK.test(o.fontLatin||'')) o.fontLatin='Mulish'; if(!GF_OK.test(o.fontArabic||'')) o.fontArabic='IBM Plex Sans Arabic'; return o; };
 const BRANDS=[];
 if(BRAND_MADA) BRANDS.push({id:'mada',name:'Mada Trips',data:BRAND_MADA});
 let C=(()=>{ try{ const c=JSON.parse(store.get(CKEY)); if(c) return normCard(c); }catch(e){} return CARD_SEED?normCard(CARD_SEED):cardExample(); })();
@@ -1461,22 +1478,23 @@ function cardQRState(){
   if(C.qrSource==='website') return C.website.trim()?{type:'url',url:{value:C.website},style:st}:null;
   const s={type:'vcard',vcard:cardVCard(),style:st}; return buildPayload(s)?s:null;
 }
+let QRMM={}, CUR_SIDE='front';
 function drawCardQR(ctx,x,y,s){
   const qs=cardQRState(); if(!qs) return false;
   const src=IMGS[C.mark]||IMGS[C.logo]; let mark=null;
   if(src){ const ar=(src.naturalWidth||src.width)/(src.naturalHeight||src.height)||1; mark=tinted(src,ar>=1?512:512*ar,ar>=1?512/ar:512,C.tintLogo?qs.style.fg:null); }
   let M; try{ M=build(qs,mark); }catch(e){ return false; }
   const cv=renderCanvas(M,qs,mark,Math.max(96,Math.round(s*RK)));
-  ctx.drawImage(cv,x,y,s,s); return true;
+  ctx.drawImage(cv,x,y,s,s); QRMM[CUR_SIDE]=s; return true;
 }
 function drawStack(ctx,W,H,x0,right,cy){
   const V=p=>p*H/948, F=p=>p*Math.min(H/948,W/1659), ink=C.ink, it=[];
-  if(C.nameAr.trim()) it.push({k:'ar',w:700,s:F(64),t:C.nameAr.trim(),g:0});
-  if(C.nameEn.trim()) it.push({k:'en',w:800,s:F(58),t:C.nameEn.trim(),g:V(99)});
-  if(C.titleAr.trim()) it.push({k:'ar',w:400,s:F(44),t:C.titleAr.trim(),g:V(76)});
-  if(C.titleEn.trim()) it.push({k:'en',w:400,s:F(42),t:C.titleEn.trim(),g:V(68)});
+  if(C.nameAr.trim()) it.push({k:'ar',w:700,s:F(64)*SZ('name'),t:C.nameAr.trim(),g:0});
+  if(C.nameEn.trim()) it.push({k:'en',w:800,s:F(58)*SZ('name'),t:C.nameEn.trim(),g:V(99)*SZ('name')});
+  if(C.titleAr.trim()) it.push({k:'ar',w:400,s:F(44)*SZ('title'),t:C.titleAr.trim(),g:V(76)*SZ('title')});
+  if(C.titleEn.trim()) it.push({k:'en',w:400,s:F(42)*SZ('title'),t:C.titleEn.trim(),g:V(68)*SZ('title')});
   const rows=[['phone',C.phone],['mail',C.email],['globe',C.website],['pin',C.address]].filter(r=>r[1]&&r[1].trim());
-  if(rows.length){ if(it.length) it.push({rule:true,g:V(53),s:0}); rows.forEach((r,i)=>it.push({icon:r[0],k:'en',w:400,s:F(37),t:r[1].trim(),g:i===0&&it.length?V(85):V(75)})); }
+  if(rows.length){ if(it.length) it.push({rule:true,g:V(53)*SZ('contact'),s:0}); rows.forEach((r,i)=>it.push({icon:r[0],k:'en',w:400,s:F(37)*SZ('contact'),t:r[1].trim(),g:(i===0&&it.length?V(85):V(75))*SZ('contact')})); }
   if(!it.length) return;
   let y=0; it.forEach((o,i)=>{ if(i) y+=o.g; o.y=y; });
   const first=it[0], last=it[it.length-1];
@@ -1484,58 +1502,58 @@ function drawStack(ctx,W,H,x0,right,cy){
   it.forEach(o=>{
     const yy=o.y+dy;
     if(o.rule){ ctx.fillStyle=ink; ctx.fillRect(x0,yy-V(1.3),right-x0,V(2.6)); return; }
-    if(o.icon){ const is=F(50); ctx.save(); ctx.translate(x0,yy-o.s*.36-is/2); ctx.scale(is/24,is/24); ctx.strokeStyle=ink; ctx.lineWidth=1.5; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.stroke(CICON[o.icon]); ctx.restore();
-      ctext(ctx,o.t,x0+F(73),yy,{kind:'en',weight:400,size:o.s,color:ink,max:right-x0-F(73)}); return; }
+    if(o.icon){ const is=F(50)*SZ('contact'), off=F(73)*SZ('contact'); ctx.save(); ctx.translate(x0,yy-o.s*.36-is/2); ctx.scale(is/24,is/24); ctx.strokeStyle=ink; ctx.lineWidth=1.5; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.stroke(CICON[o.icon]); ctx.restore();
+      ctext(ctx,o.t,x0+off,yy,{kind:'en',weight:400,size:o.s,color:ink,max:right-x0-off}); return; }
     ctext(ctx,o.t,x0,yy,{kind:o.k,weight:o.w,size:o.s,color:ink,max:right-x0});
   });
 }
-function wordmark(ctx,cx,cy,maxW,size,color){ ctext(ctx,C.company||C.nameEn,cx,cy+size*.35,{kind:'en',weight:800,size,color,align:'center',max:maxW}); }
+function wordmark(ctx,cx,cy,maxW,size,color){ size*=SZ('logo'); ctext(ctx,C.company||C.nameEn,cx,cy+size*.35,{kind:'en',weight:800,size,color,align:'center',max:maxW}); }
 function drawFront(ctx,W,H){
   const X=f=>f*W, Y=f=>f*H, V=p=>p*H/948, F=p=>p*Math.min(H/948,W/1659), ink=C.ink, logo=IMGS[C.logo];
   if(C.template==='split'){
-    if(logo) drawLogo(ctx,logo,X(.157),Y(.435),X(.205),Y(.36),C.tintLogo?ink:null); else wordmark(ctx,X(.157),Y(.44),X(.24),F(52),ink);
-    ctext(ctx,C.tagAr.trim(),X(.157),Y(.735),{kind:'ar',weight:400,size:F(46),color:ink,align:'center',max:X(.24)});
-    ctext(ctx,C.tagEn.trim(),X(.157),Y(.80),{kind:'en',weight:500,size:F(36),color:ink,align:'center',max:X(.25),track:.09});
+    if(logo) drawLogo(ctx,logo,X(.157),Y(.435),(X(.205))*SZ('logo'),(Y(.36))*SZ('logo'),C.tintLogo?ink:null); else wordmark(ctx,X(.157),Y(.44),X(.24),F(52),ink);
+    ctext(ctx,C.tagAr.trim(),X(.157),Y(.735),{kind:'ar',weight:400,size:F(46)*SZ('tag'),color:ink,align:'center',max:X(.24)});
+    ctext(ctx,C.tagEn.trim(),X(.157),Y(.80),{kind:'en',weight:500,size:F(36)*SZ('tag'),color:ink,align:'center',max:X(.25),track:.09});
     ctx.fillStyle=ink; ctx.fillRect(X(.302)-V(1.5),Y(.15),V(3),Y(.708));
-    const s=Math.min(X(.239),Y(.42)), qx=X(.951)-s;
+    const s=Math.min(X(.239),Y(.42))*SZ('qr'), qx=X(.951)-s;
     const has=C.qrShow&&drawCardQR(ctx,qx,Y(.501)-s/2,s);
     drawStack(ctx,W,H,X(.3466),has?qx-X(.039):X(.94),Y(.513));
   } else if(C.template==='stacked'){
     const rx=X(.80), qs=C.qrShow&&cardQRState();
-    if(logo) drawLogo(ctx,logo,rx,qs?Y(.25):Y(.5),X(.26),qs?Y(.26):Y(.5),C.tintLogo?ink:null); else wordmark(ctx,rx,qs?Y(.25):Y(.5),X(.3),F(44),ink);
-    if(qs){ const s=Math.min(X(.2),Y(.42)); drawCardQR(ctx,rx-s/2,Y(.69)-s/2,s); }
+    if(logo) drawLogo(ctx,logo,rx,qs?Y(.25):Y(.5),(X(.26))*SZ('logo'),(qs?Y(.26):Y(.5))*SZ('logo'),C.tintLogo?ink:null); else wordmark(ctx,rx,qs?Y(.25):Y(.5),X(.3),F(44),ink);
+    if(qs){ const s=Math.min(X(.2),Y(.42))*SZ('qr'); drawCardQR(ctx,rx-s/2,Y(.69)-s/2,s); }
     drawStack(ctx,W,H,X(.07),X(.63),Y(.5));
   } else if(C.template==='band'){
     const bw=X(.32), tag=C.tagAr.trim()||C.tagEn.trim();
     ctx.fillStyle=ink; ctx.fillRect(-RB,-RB,bw+RB,H+2*RB);
-    if(logo) drawLogo(ctx,logo,bw/2,tag?Y(.4):Y(.5),bw*.62,Y(.4),C.bg); else wordmark(ctx,bw/2,tag?Y(.4):Y(.5),bw*.8,F(46),C.bg);
-    ctext(ctx,C.tagAr.trim(),bw/2,Y(.74),{kind:'ar',weight:400,size:F(42),color:C.bg,align:'center',max:bw*.8});
-    ctext(ctx,C.tagEn.trim(),bw/2,Y(C.tagAr.trim()?.82:.76),{kind:'en',weight:500,size:F(32),color:C.bg,align:'center',max:bw*.84,track:.09});
-    const s=Math.min(X(.2),Y(.38)), qx=X(.955)-s;
+    if(logo) drawLogo(ctx,logo,bw/2,tag?Y(.4):Y(.5),(bw*.62)*SZ('logo'),(Y(.4))*SZ('logo'),C.bg); else wordmark(ctx,bw/2,tag?Y(.4):Y(.5),bw*.8,F(46),C.bg);
+    ctext(ctx,C.tagAr.trim(),bw/2,Y(.74),{kind:'ar',weight:400,size:F(42)*SZ('tag'),color:C.bg,align:'center',max:bw*.8});
+    ctext(ctx,C.tagEn.trim(),bw/2,Y(C.tagAr.trim()?.82:.76),{kind:'en',weight:500,size:F(32)*SZ('tag'),color:C.bg,align:'center',max:bw*.84,track:.09});
+    const s=Math.min(X(.2),Y(.38))*SZ('qr'), qx=X(.955)-s;
     const has=C.qrShow&&drawCardQR(ctx,qx,Y(.5)-s/2,s);
     drawStack(ctx,W,H,X(.37),has?qx-X(.035):X(.94),Y(.5));
   } else if(C.template==='bold'){
     const barH=Y(.075), x0=X(.07); ctx.fillStyle=ink; ctx.fillRect(-RB,H-barH,W+2*RB,barH+RB);
-    if(logo) drawLogo(ctx,logo,X(.86),Y(.2),X(.17),Y(.2),C.tintLogo?ink:null);
+    if(logo) drawLogo(ctx,logo,X(.86),Y(.2),(X(.17))*SZ('logo'),(Y(.2))*SZ('logo'),C.tintLogo?ink:null);
     const nameR=logo?X(.74):X(.93);
-    ctext(ctx,C.nameEn.trim(),x0,Y(.27),{kind:'en',weight:800,size:F(92),color:ink,max:nameR-x0});
-    ctext(ctx,C.nameAr.trim(),x0,Y(.385),{kind:'ar',weight:700,size:F(50),color:ink,max:nameR-x0});
-    const tw=ctext(ctx,C.titleEn.trim(),x0,Y(.485),{kind:'en',weight:500,size:F(38),color:ink,max:X(.5)});
-    if(C.titleAr.trim()) ctext(ctx,C.titleAr.trim(),tw?x0+tw+F(30):x0,Y(.485),{kind:'ar',weight:400,size:F(38),color:ink,max:X(.4)});
+    ctext(ctx,C.nameEn.trim(),x0,Y(.27),{kind:'en',weight:800,size:F(92)*SZ('name'),color:ink,max:nameR-x0});
+    ctext(ctx,C.nameAr.trim(),x0,Y(.385),{kind:'ar',weight:700,size:F(50)*SZ('name'),color:ink,max:nameR-x0});
+    const tw=ctext(ctx,C.titleEn.trim(),x0,Y(.485),{kind:'en',weight:500,size:F(38)*SZ('title'),color:ink,max:X(.5)});
+    if(C.titleAr.trim()) ctext(ctx,C.titleAr.trim(),tw?x0+tw+F(30):x0,Y(.485),{kind:'ar',weight:400,size:F(38)*SZ('title'),color:ink,max:X(.4)});
     ctx.fillStyle=ink; ctx.fillRect(x0,Y(.54),X(.06),V(5));
-    const s=Math.min(X(.2),Y(.36)), qx=X(.95)-s, has=C.qrShow&&drawCardQR(ctx,qx,Y(.875)-s,s);
+    const s=Math.min(X(.2),Y(.36))*SZ('qr'), qx=X(.95)-s, has=C.qrShow&&drawCardQR(ctx,qx,Y(.875)-s,s);
     const right=has?qx-X(.03):X(.93);
-    contactRows().forEach((r,i)=>{ const y=Y(.655)+i*V(64), sz=F(33);
-      contactIcon(ctx,r[0],x0,y-sz*.36,F(44),ink); ctext(ctx,r[1].trim(),x0+F(64),y,{kind:'en',weight:400,size:sz,color:ink,max:right-x0-F(64)}); });
+    contactRows().forEach((r,i)=>{ const k=SZ('contact'), y=Y(.655)+i*V(64)*k, sz=F(33)*k;
+      contactIcon(ctx,r[0],x0,y-sz*.36,F(44)*k,ink); ctext(ctx,r[1].trim(),x0+F(64)*k,y,{kind:'en',weight:400,size:sz,color:ink,max:right-x0-F(64)*k}); });
   } else if(C.template==='arc'){
     const cx=W+X(.03), cy=H+Y(.08);
     ctx.fillStyle=ink; ctx.beginPath(); ctx.arc(cx,cy,Y(.72),0,Math.PI*2); ctx.fill();
     ctx.strokeStyle=ink; ctx.lineWidth=V(3); ctx.beginPath(); ctx.arc(cx,cy,Y(.83),0,Math.PI*2); ctx.stroke();
-    if(logo) drawLogoLeft(ctx,logo,X(.07),Y(.17),X(.24),Y(.17),C.tintLogo?ink:null); else ctext(ctx,C.company||C.nameEn,X(.07),Y(.2),{kind:'en',weight:800,size:F(44),color:ink,max:X(.5)});
-    const s=Math.min(X(.18),Y(.32)); C.qrShow&&drawCardQR(ctx,X(.95)-s,Y(.9)-s,s);
+    if(logo) drawLogoLeft(ctx,logo,X(.07),Y(.17),(X(.24))*SZ('logo'),(Y(.17))*SZ('logo'),C.tintLogo?ink:null); else ctext(ctx,C.company||C.nameEn,X(.07),Y(.2),{kind:'en',weight:800,size:F(44),color:ink,max:X(.5)});
+    const s=Math.min(X(.18),Y(.32))*SZ('qr'); C.qrShow&&drawCardQR(ctx,X(.95)-s,Y(.9)-s,s);
     drawStack(ctx,W,H,X(.07),X(.58),Y(.63));
   } else {
-    const s=Math.min(X(.239),Y(.42)), qx=X(.93)-s;
+    const s=Math.min(X(.239),Y(.42))*SZ('qr'), qx=X(.93)-s;
     const has=C.qrShow&&drawCardQR(ctx,qx,Y(.5)-s/2,s);
     drawStack(ctx,W,H,X(.07),has?qx-X(.05):X(.93),Y(.5));
   }
@@ -1544,7 +1562,7 @@ const QRCAP={vcard:['Scan to save my contact','امسح الرمز لحفظ جه
 function drawBack(ctx,W,H){
   const X=f=>f*W, Y=f=>f*H, F=p=>p*Math.min(H/948,W/1659), logo=IMGS[C.logo];
   if(C.back==='qr'){
-    const s=Y(.54); if(!drawCardQR(ctx,W/2-s/2,Y(.4)-s/2,s)) return;
+    const s=Y(.54)*SZ('qr'); if(!drawCardQR(ctx,W/2-s/2,Y(.4)-s/2,s)) return;
     const cap=QRCAP[C.qrSource]||QRCAP.vcard;
     ctext(ctx,cap[0],W/2,Y(.82),{kind:'en',weight:700,size:F(36),color:C.ink,align:'center',max:X(.8)});
     ctext(ctx,cap[1],W/2,Y(.91),{kind:'ar',weight:400,size:F(34),color:C.ink,align:'center',max:X(.8)});
@@ -1553,10 +1571,10 @@ function drawBack(ctx,W,H){
   if(C.back==='split'){
     const tag=C.tagAr.trim()||C.tagEn.trim(), q=W/4;
     ctx.fillStyle=C.ink; ctx.fillRect(-RB,-RB,W/2+RB,H+2*RB);
-    if(logo) drawLogo(ctx,logo,q,tag?Y(.4):Y(.5),X(.3),Y(.42),C.bg); else wordmark(ctx,q,tag?Y(.4):Y(.5),X(.4),F(48),C.bg);
-    ctext(ctx,C.tagAr.trim(),q,Y(.76),{kind:'ar',weight:400,size:F(40),color:C.bg,align:'center',max:X(.4)});
-    ctext(ctx,C.tagEn.trim(),q,Y(C.tagAr.trim()?.84:.78),{kind:'en',weight:500,size:F(30),color:C.bg,align:'center',max:X(.42),track:.09});
-    const s=Y(.5);
+    if(logo) drawLogo(ctx,logo,q,tag?Y(.4):Y(.5),(X(.3))*SZ('logo'),(Y(.42))*SZ('logo'),C.bg); else wordmark(ctx,q,tag?Y(.4):Y(.5),X(.4),F(48),C.bg);
+    ctext(ctx,C.tagAr.trim(),q,Y(.76),{kind:'ar',weight:400,size:F(40)*SZ('tag'),color:C.bg,align:'center',max:X(.4)});
+    ctext(ctx,C.tagEn.trim(),q,Y(C.tagAr.trim()?.84:.78),{kind:'en',weight:500,size:F(30)*SZ('tag'),color:C.bg,align:'center',max:X(.42),track:.09});
+    const s=Y(.5)*SZ('qr');
     if(drawCardQR(ctx,3*q-s/2,Y(.42)-s/2,s)){ const cap=QRCAP[C.qrSource]||QRCAP.vcard;
       ctext(ctx,cap[0],3*q,Y(.81),{kind:'en',weight:700,size:F(30),color:C.ink,align:'center',max:X(.42)});
       ctext(ctx,cap[1],3*q,Y(.89),{kind:'ar',weight:400,size:F(28),color:C.ink,align:'center',max:X(.42)}); }
@@ -1573,12 +1591,12 @@ function drawBack(ctx,W,H){
   }
   const col=(C.back==='brand'||C.back==='pattern')?C.bg:C.ink, tag=C.tagAr.trim()||C.tagEn.trim();
   const cy=tag?Y(.42):Y(.5);
-  if(logo) drawLogo(ctx,logo,W/2,cy,X(.34),tag?Y(.44):Y(.52),C.back!=='light'||C.tintLogo?col:null); else wordmark(ctx,W/2,cy,X(.7),F(70),col);
-  ctext(ctx,C.tagAr.trim(),W/2,Y(.77),{kind:'ar',weight:400,size:F(46),color:col,align:'center',max:X(.6)});
-  ctext(ctx,C.tagEn.trim(),W/2,Y(C.tagAr.trim()?.85:.79),{kind:'en',weight:500,size:F(36),color:col,align:'center',max:X(.6),track:.09});
+  if(logo) drawLogo(ctx,logo,W/2,cy,(X(.34))*SZ('logo'),(tag?Y(.44):Y(.52))*SZ('logo'),C.back!=='light'||C.tintLogo?col:null); else wordmark(ctx,W/2,cy,X(.7),F(70),col);
+  ctext(ctx,C.tagAr.trim(),W/2,Y(.77),{kind:'ar',weight:400,size:F(46)*SZ('tag'),color:col,align:'center',max:X(.6)});
+  ctext(ctx,C.tagEn.trim(),W/2,Y(C.tagAr.trim()?.85:.79),{kind:'en',weight:500,size:F(36)*SZ('tag'),color:col,align:'center',max:X(.6),track:.09});
 }
 function renderCard(side,k,o={}){
-  const {w,h}=SIZES[C.size], b=o.bleed||0; RK=k; RB=b;
+  const {w,h}=SIZES[C.size], b=o.bleed||0; RK=k; RB=b; CUR_SIDE=side; delete QRMM[side];
   const cv=document.createElement('canvas'); cv.width=Math.round((w+2*b)*k); cv.height=Math.round((h+2*b)*k);
   const ctx=cv.getContext('2d'); ctx.scale(k,k); ctx.translate(b,b);
   const dark=side==='back'&&(C.back==='brand'||C.back==='pattern');
@@ -1626,6 +1644,7 @@ renderBrandBtns();
 
 function syncCardColor(k){ $$(`[data-cc="${k}"]`).forEach(e=>e.value=C[k]); $$(`[data-cct="${k}"]`).forEach(e=>{ if(document.activeElement!==e) e.value=C[k].toUpperCase(); }); }
 function fillCard(){
+  $$('[data-cksz]').forEach(el=>{ if(document.activeElement!==el) el.value=C.sz[el.dataset.cksz]; });
   [['#cd-fl','fontLatin'],['#cd-fa','fontArabic']].forEach(([id,k])=>{ if(document.activeElement!==$(id)) $(id).value=C[k]; });
   $$('[data-ck]').forEach(el=>{ const v=C[el.dataset.ck]; if(el.type==='checkbox') el.checked=!!v; else if(document.activeElement!==el) el.value=v??''; });
   syncCardColor('bg'); syncCardColor('ink');
@@ -1642,17 +1661,29 @@ function refreshCardUI(){
   $('#qsrc-hint').textContent={vcard:'Scanning offers "Add to contacts" with the name, title, phone, email and website from this card.',
     website:C.website.trim()?'Scanning opens the website.':'Add a website above to use this.',qrtab:'Uses whatever you set up in the QR code tab.'}[C.qrSource];
   $('#cd-share-wrap').hidden=!!window.claude;
+  Object.keys(SZ_DEFAULT).forEach(k=>{ const v=$('#sz-'+k+'-v'); if(v&&k!=='qr') v.textContent='· '+C.sz[k]+'%'; });
   if(!$('#cd-fl-prev').dataset.err&&!$('#cd-fa-prev').dataset.err) fontPreviews();
+}
+function qrSizeInfo(){
+  const f=QRMM.front, b=C.back==='none'?null:QRMM.back, mm=[f,b].filter(Boolean), min=mm.length?Math.min(...mm):0;
+  $('#sz-qr-v').textContent='· '+C.sz.qr+'%'+(f?` · ${f.toFixed(0)} mm`:'');
+  const lim=C.qrSource==='website'?13:16, h=$('#sz-qr-hint');
+  if(!mm.length){ h.textContent=''; h.classList.remove('warn'); return; }
+  const parts=[f?`front ${f.toFixed(1)} mm`:'',b?`back ${b.toFixed(1)} mm`:''].filter(Boolean).join(', ');
+  if(min<lim){ h.classList.add('warn'); h.textContent=`QR printed size: ${parts}. Below ${lim} mm some phones struggle to scan ${C.qrSource==='vcard'?'a contact card':'it'}. Make it larger or test before printing.`; }
+  else { h.classList.remove('warn'); h.textContent=`QR printed size: ${parts}. Scans comfortably at this size.`; }
 }
 let craf=0;
 function cardUpdate(){ if(craf) return; craf=requestAnimationFrame(async()=>{ craf=0; refreshCardUI(); await prepCard();
   const {w}=SIZES[C.size], k=1000/w;
   $('#cd-front').src=renderCard('front',k,{guides:C.guides}).toDataURL();
   if(C.back!=='none') $('#cd-back').src=renderCard('back',k,{guides:C.guides}).toDataURL();
+  qrSizeInfo();
   saveCard(); }); }
 
 document.addEventListener('input',e=>{ const el=e.target;
-  if(el.dataset.ck){ C[el.dataset.ck]=el.type==='checkbox'?el.checked:el.value; cardUpdate(); }
+  if(el.dataset.cksz){ C.sz[el.dataset.cksz]=+el.value; cardUpdate(); }
+  else if(el.dataset.ck){ C[el.dataset.ck]=el.type==='checkbox'?el.checked:el.value; cardUpdate(); }
   else if(el.dataset.cc){ C[el.dataset.cc]=el.value.toUpperCase(); syncCardColor(el.dataset.cc); cardUpdate(); }
   else if(el.dataset.cct){ let v=el.value.trim(); if(!v.startsWith('#')) v='#'+v; if(/^#[0-9a-f]{6}$/i.test(v)){ C[el.dataset.cct]=v.toUpperCase(); syncCardColor(el.dataset.cct); cardUpdate(); } }
 });
@@ -1673,9 +1704,10 @@ document.addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b
     const [m,t]=d.foot.split(':'); setMode(m); if(t) setType(t);
     (m==='card'?$('#card-bench'):$('#qr-bench')).scrollIntoView({block:'start'}); }
 });
-$('#brand-save').onclick=()=>{ const br={}; Object.keys(CARD_DEFAULT).forEach(k=>{ if(!PERSON.includes(k)&&k!=='example') br[k]=C[k]; });
+$('#brand-save').onclick=()=>{ const br={}; Object.keys(CARD_DEFAULT).forEach(k=>{ if(!PERSON.includes(k)&&k!=='example') br[k]=clone(C[k]); });
   myBrand=br; if(!store.set(CKEY+'.brand',JSON.stringify(br))){ toast('Browser storage is full or blocked, so the brand wasn\'t saved.'); return; }
   renderBrandBtns(); toast(`Saved "${br.company||'my brand'}": logo, colours, layout, company details`); };
+$('#sz-reset').onclick=()=>{ const undo=cardSnap(); C.sz=Object.assign({},SZ_DEFAULT); fillCard(); cardUpdate(); toast('Sizes reset',undo); };
 $('#cd-new').onclick=()=>{ const undo=cardSnap(); PERSON.forEach(k=>C[k]=''); C.example=false; fillCard(); cardUpdate(); $('#cd-nameEn').focus(); toast('Ready for the next person. Brand kept.',undo); };
 $('#cd-clear').onclick=()=>{ const undo=cardSnap(); ['nameEn','nameAr','titleEn','titleAr','phone','email','company','website','address','tagEn','tagAr'].forEach(k=>C[k]=''); C.example=false; fillCard(); cardUpdate(); toast('Details cleared',undo); };
 
