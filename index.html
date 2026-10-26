@@ -12,7 +12,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800;900&family=Figtree:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800;900&family=Figtree:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=Mulish:wght@400;500;700;800&family=Montserrat:wght@400;500;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Tajawal:wght@400;500;700&family=Noto+Kufi+Arabic:wght@400;700&display=swap">
 <style>
 /* Layout: compact masthead, then a 3-step workbench: (1) content + (2) design on the left, (3) sticky preview/export on the right; saved library below. Light-only by choice. */
 :root{
@@ -200,6 +200,31 @@ footer{padding-block:16px 30px;font:500 12px var(--f-mono);color:var(--muted)}
 .toast:not(.has-act){padding-right:16px}
 .mbar{display:none}
 
+/* mode switch + business cards */
+.modes{display:inline-flex;gap:4px;padding:4px;border:2px solid var(--line);border-radius:999px;background:var(--paper);box-shadow:4px 4px 0 var(--shadow);margin-bottom:24px;max-width:100%}
+.modes button{border:0;background:transparent;border-radius:999px;padding:10px 18px;font:700 15px var(--f-body);display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.modes button svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.modes button:hover{background:var(--sunk)}
+.modes button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.brandbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 14px;border:2px solid var(--line);border-radius:12px;background:var(--sunk);margin-bottom:18px}
+.brandbar b{display:block;font-size:14px}
+.brandbar .acts{display:flex;gap:8px;flex-wrap:wrap}
+.drops{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:12px}
+.drop.sm{grid-template-columns:52px minmax(0,1fr);padding:10px}
+.drop.sm .lthumb{width:52px;height:52px;font-size:18px}
+.drop .rm{position:relative;z-index:2;justify-self:start;margin-top:4px}
+input[dir="rtl"],textarea[dir="rtl"]{font-family:"IBM Plex Sans Arabic",var(--f-body);text-align:right}
+.ctile svg{width:56px;height:34px}
+.pal{display:flex;flex-wrap:wrap;gap:8px}
+.pal button{display:flex;width:44px;height:30px;border-radius:8px;overflow:hidden;border:2px solid var(--hair);padding:0}
+.pal button:hover{border-color:var(--line)}
+.pal button i{flex:1}
+.cards{display:grid;gap:18px;padding:18px 22px 0}
+.cardfig{margin:0;display:grid;gap:8px}
+.cardfig figcaption{display:flex;justify-content:space-between;gap:8px;font:700 11px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.cardfig img{width:100%;height:auto;display:block;border-radius:3px;box-shadow:0 1px 1px rgba(11,15,26,.1),0 12px 26px rgba(11,15,26,.18)}
+.checks{display:grid;gap:8px}
+.share-out{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
 @media (max-width:960px){
   .bench,.hero{grid-template-columns:minmax(0,1fr)}
   .preview{position:static}
@@ -244,12 +269,17 @@ footer{padding-block:16px 30px;font:500 12px var(--f-mono);color:var(--muted)}
   <section class="hero">
     <h1>QR codes that open <em>the right thing.</em></h1>
     <div>
-      <p>Links, Wi-Fi, events and contact cards that save straight into the phone. Design it, check it scans, export it for print.</p>
-      <div class="feat"><span>9 code types</span><span>7 module shapes</span><span>Logo</span><span>Frames</span><span>PNG · SVG · JPG</span></div>
+      <p>Links, Wi-Fi, events and contact cards that save straight into the phone, plus print-ready business cards with the QR built in.</p>
+      <div class="feat"><span>9 code types</span><span>7 module shapes</span><span>Logo</span><span>Frames</span><span>PNG · SVG · JPG</span><span>Business cards · print PDF</span></div>
     </div>
   </section>
 
-  <main class="bench">
+  <nav class="modes" aria-label="Choose a tool">
+    <button data-mode="qr" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>QR code</button>
+    <button data-mode="card" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="2"/><circle cx="8" cy="11" r="2"/><path d="M5 16c.6-1.5 1.7-2.2 3-2.2s2.4.7 3 2.2M14 10h5M14 13h4"/></svg>Business card</button>
+  </nav>
+
+  <main class="bench" id="qr-bench">
     <div class="col">
       <!-- 1. CONTENT -->
       <section class="panel" aria-labelledby="h-content">
@@ -482,6 +512,120 @@ footer{padding-block:16px 30px;font:500 12px var(--f-mono);color:var(--muted)}
         </div>
         <details><summary>Encoded content</summary><pre id="payload"></pre></details>
         <button class="link-btn" id="copy-text" style="justify-self:start">Copy the encoded text</button>
+      </div>
+    </aside>
+  </main>
+
+  <main class="bench" id="card-bench" hidden>
+    <div class="col">
+      <section class="panel" aria-labelledby="h-cdet">
+        <div class="panel-h"><h2 id="h-cdet"><span class="step">1</span>Card details</h2></div>
+        <div class="panel-b">
+          <div class="brandbar">
+            <div><b>Brand templates</b><span class="hint">Start from a saved brand, then change only the person's details.</span></div>
+            <div class="acts" id="brand-btns"></div>
+          </div>
+          <div class="pane">
+            <div class="drops">
+              <label class="drop" id="cd-drop-logo"><input id="cd-logo" type="file" accept="image/*" aria-label="Upload logo"><span class="lthumb" id="cd-logo-thumb">+</span>
+                <span><b>Logo</b><span class="hint">SVG or PNG. Used on the front and back.</span></span></label>
+              <label class="drop sm" id="cd-drop-mark"><input id="cd-mark" type="file" accept="image/*" aria-label="Upload icon for the QR centre"><span class="lthumb" id="cd-mark-thumb">+</span>
+                <span><b>QR centre icon</b><span class="hint">Optional</span></span></label>
+            </div>
+            <div class="extras"><button class="link-btn" id="cd-logo-rm">Remove logo</button><button class="link-btn" id="cd-mark-rm">Remove icon</button></div>
+
+            <div class="group"><div class="group-h"><h3>Person</h3><button class="add" id="cd-new">+ New employee card</button></div>
+              <div class="row">
+                <div class="field"><label for="cd-nameEn">Name (English)</label><input id="cd-nameEn" type="text" data-ck="nameEn"></div>
+                <div class="field"><label for="cd-nameAr">Name (Arabic) <span class="opt">optional</span></label><input id="cd-nameAr" type="text" dir="rtl" lang="ar" data-ck="nameAr"></div>
+              </div>
+              <div class="row">
+                <div class="field"><label for="cd-titleEn">Job title (English)</label><input id="cd-titleEn" type="text" data-ck="titleEn"></div>
+                <div class="field"><label for="cd-titleAr">Job title (Arabic) <span class="opt">optional</span></label><input id="cd-titleAr" type="text" dir="rtl" lang="ar" data-ck="titleAr"></div>
+              </div>
+              <div class="row">
+                <div class="field"><label for="cd-phone">Phone</label><input id="cd-phone" type="tel" data-ck="phone" inputmode="tel"></div>
+                <div class="field"><label for="cd-email">Email</label><input id="cd-email" type="email" data-ck="email" inputmode="email"></div>
+              </div>
+            </div>
+            <div class="group"><div class="group-h"><h3>Company</h3></div>
+              <div class="row">
+                <div class="field"><label for="cd-company">Company name</label><input id="cd-company" type="text" data-ck="company"></div>
+                <div class="field"><label for="cd-website">Website</label><input id="cd-website" type="text" data-ck="website" inputmode="url"></div>
+              </div>
+              <div class="field"><label for="cd-address">Address <span class="opt">optional</span></label><input id="cd-address" type="text" data-ck="address"></div>
+              <div class="row">
+                <div class="field"><label for="cd-tagEn">Tagline (English) <span class="opt">optional</span></label><input id="cd-tagEn" type="text" data-ck="tagEn"></div>
+                <div class="field"><label for="cd-tagAr">Tagline (Arabic) <span class="opt">optional</span></label><input id="cd-tagAr" type="text" dir="rtl" lang="ar" data-ck="tagAr"></div>
+              </div>
+            </div>
+            <div class="group"><div class="group-h"><h3>QR code on the card</h3></div>
+              <div class="seg" id="qsrc"><button data-qsrc="vcard">Save contact</button><button data-qsrc="website">Open website</button><button data-qsrc="qrtab">From QR tab</button></div>
+              <p class="hint" id="qsrc-hint"></p>
+            </div>
+          </div>
+          <div class="formbar">
+            <span class="chip" id="card-example">Example details · replace with yours</span>
+            <button class="link-btn" id="cd-clear">Clear all details</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="h-cdes">
+        <div class="panel-h"><h2 id="h-cdes"><span class="step">2</span>Card design</h2></div>
+        <div class="panel-b pane">
+          <div class="field"><span class="lbl">Front layout</span><div class="tiles" id="ct-template"></div></div>
+          <div class="field"><span class="lbl">Back side</span><div class="tiles" id="ct-back"></div></div>
+          <div class="row">
+            <div class="field"><label for="cd-size">Card size</label><select id="cd-size" data-ck="size"></select></div>
+            <div class="field"><label for="cd-dpi">Export quality</label><select id="cd-dpi" data-ck="dpi"><option value="300">300 DPI · standard print</option><option value="600">600 DPI · sharpest</option></select></div>
+          </div>
+          <div class="group">
+            <div class="colors">
+              <div class="field"><label for="cd-bg">Card colour</label><div class="swatch"><input id="cd-bg" type="color" data-cc="bg"><input type="text" id="cd-bg-t" data-cct="bg" maxlength="7" aria-label="Card colour hex"></div></div>
+              <div class="field"><label for="cd-ink">Text &amp; logo colour</label><div class="swatch"><input id="cd-ink" type="color" data-cc="ink"><input type="text" id="cd-ink-t" data-cct="ink" maxlength="7" aria-label="Text colour hex"></div></div>
+            </div>
+            <div class="field"><span class="lbl">Colour pairs</span><div class="pal" id="cd-pal"></div></div>
+          </div>
+          <div class="group">
+            <div class="row">
+              <div class="field"><label for="cd-fl">English font</label><select id="cd-fl" data-ck="fontLatin"></select></div>
+              <div class="field"><label for="cd-fa">Arabic font</label><select id="cd-fa" data-ck="fontArabic"></select></div>
+            </div>
+          </div>
+          <div class="group checks">
+            <label class="check"><input type="checkbox" id="cd-tint" data-ck="tintLogo"> Recolour logo to the text colour</label>
+            <label class="check"><input type="checkbox" id="cd-qrshow" data-ck="qrShow"> Show QR code on the front</label>
+            <label class="check"><input type="checkbox" id="cd-qrwhite" data-ck="qrWhite"> Put the QR code on a white box</label>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <aside class="panel preview" id="card-preview" aria-labelledby="h-cprev">
+      <div class="panel-h"><h2 id="h-cprev"><span class="step">3</span>Preview &amp; print</h2></div>
+      <div class="cards">
+        <figure class="cardfig"><figcaption><span>Front</span><span id="cd-dims"></span></figcaption><img id="cd-front" alt="Front of the business card"></figure>
+        <figure class="cardfig" id="cd-backfig"><figcaption><span>Back</span></figcaption><img id="cd-back" alt="Back of the business card"></figure>
+        <label class="check"><input type="checkbox" id="cd-guides" data-ck="guides"> Show safe area (keep text inside the dashed line)</label>
+      </div>
+      <div class="export">
+        <button class="btn primary wide" id="cd-pdf"><svg viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Print PDF · front &amp; back</button>
+        <div class="checks">
+          <label class="check"><input type="checkbox" id="cd-bleed" data-ck="bleed"> Add 3 mm bleed (most print shops ask for this)</label>
+          <label class="check"><input type="checkbox" id="cd-marks" data-ck="marks"> Add crop marks</label>
+        </div>
+        <button class="btn wide" id="cd-sheet">A4 sheet PDF · 10 cards per page</button>
+        <div class="actions">
+          <button class="btn" id="cd-png-f">Front PNG</button>
+          <button class="btn" id="cd-png-b">Back PNG</button>
+        </div>
+        <p class="hint">Print shop: send the Print PDF. Office printer: print the A4 sheet double-sided (flip on long edge) on 300 gsm card, then cut along the marks.</p>
+        <div id="cd-share-wrap" class="pane">
+          <button class="btn wide" id="cd-share">Copy link to this card design</button>
+          <div class="share-out" id="cd-share-out" hidden><input type="text" id="cd-share-link" readonly aria-label="Card design link"><button class="btn small" id="cd-share-copy">Copy</button></div>
+          <p class="hint">Send the link to a colleague: it opens this page with the same logo, colours and details ready to edit.</p>
+        </div>
       </div>
     </aside>
   </main>
@@ -1084,10 +1228,331 @@ document.addEventListener('focusin',e=>{ if(S.example&&e.target.closest('[data-p
 $('#mbar-view').onclick=()=>$('#preview').scrollIntoView({block:'start'});
 if('IntersectionObserver' in window){ new IntersectionObserver(es=>es.forEach(en=>$('#mbar').classList.toggle('away',en.isIntersecting)),{threshold:.25}).observe($('#preview')); }
 
+/* ================= business cards ================= */
+const CARD_SEED=null;
+const BRAND_MADA={"template": "split", "back": "brand", "size": "us", "bg": "#F2ECE2", "ink": "#1E352D", "fontLatin": "Mulish", "fontArabic": "IBM Plex Sans Arabic", "tintLogo": true, "qrWhite": true, "qrShow": true, "qrSource": "vcard", "guides": false, "dpi": "600", "bleed": true, "marks": true, "company": "Mada Trips", "website": "www.madatrips.sa", "address": "", "tagEn": "Future Together", "tagAr": "ابـــعد معـــا", "logo": "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iTGF5ZXJfMiIgZGF0YS1uYW1lPSJMYXllciAyIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTguOTkgMjM5LjE4IiB3aWR0aD0iMjU5IiBoZWlnaHQ9IjIzOSI+CiAgPGRlZnM+CiAgICA8c3R5bGU+CiAgICAgIC5jbHMtMSB7CiAgICAgICAgZmlsbDogIzFlMzUyZDsKICAgICAgfQogICAgPC9zdHlsZT4KICA8L2RlZnM+CiAgPGcgaWQ9IkxheWVyXzEtMiIgZGF0YS1uYW1lPSJMYXllciAxIj4KICAgIDxnPgogICAgICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0yNTQuNjUsMTU3LjM2YzQuODMsNy4yNyw0Ljc0LDE3LjMzLDIuODMsMjUuNzktMTAuNSw1LTIyLjQ4LDQuMy0zMC43My0zLjk4LTIuOTQsMy40NS02LjY1LDUuNTctMTEuMyw1LjU3bC0xNDEuNTgtLjAyYy03Ljg1LDAtMTIuOTYtNS4xNi0xMi45Ny0xMi45OGwtLjA0LTQ3LjksOS45Ni0uMDIuMDMsNDYuNjZjMCwyLjM5LDEuNiw0LjQ1LDQuMjUsNC40NWwxMzkuNTQuMDJjMi4xMywwLDQuMS0uNTIsNS4xNC0yLjE4bDQuNC03LjA3YzIuNTMtNC4wNiw0Ljk1LTguMDcsOC40OC0xMS4yNCw2Ljc2LTYuMDYsMTYuOS00Ljc2LDIxLjk5LDIuOTFaTTI0OS41MiwxNzYuMzljLjU2LTYuODgtMS45OS0xNS41OC03LjctMTUuNzQtNC4xNi0uMTEtNy42Nyw2LjU2LTEwLjI5LDExLjEsNC45NSw0LjQ1LDExLjUxLDUuNjQsMTcuOTgsNC42NFoiLz4KICAgICAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMTkuNzMsMTg0Ljc1bC0xLjgyLTkuNzgsMjMuOS0uMDJjLTEuNTMtOC45MS02LjI4LTE2LjI4LTEzLjIzLTIxLjk5bDcuMzEtOS4yM2M0LjA0LDQuMjIsNy41NSw4LjY2LDEwLjU3LDEzLjcsNC44Myw4LjczLDUuNTgsMTcuMzUsNC4xOSwyNy4zMWgtMzAuOTJaIi8+CiAgICAgIDxyZWN0IGNsYXNzPSJjbHMtMSIgeT0iMTIzLjgyIiB3aWR0aD0iOS45NCIgaGVpZ2h0PSI2MC45MiIvPgogICAgICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xNi4wNiwyMzguODJsLjEtMTMuNzQtNS4wOSw3Ljg0Yy0uNTkuMi0xLjkyLjE3LTIuNDgtLjA3bC00Ljg3LTcuNTUtLjAyLDEzLjU2SC4wN3MwLTIwLjUxLDAtMjAuNTFoMy41NXM2LjMxLDEwLjM1LDYuMzEsMTAuMzVsNi40OC0xMC4zNWgzLjM3czAsMjAuNDUsMCwyMC40NWwtMy43LjAzWiIvPgogICAgICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik03OS42MywyMzQuMzJjLTEuNjgsMi43My00LjM5LDQuNDMtNy41NSw0LjQ2bC04Ljg2LjA2di0yMC41OXM4Ljk3LjA5LDguOTcuMDljMy40NC4wNCw2LjIxLDIuMDQsNy43LDUuMDIsMS41NywzLjQ4LDEuNTEsNy4zNi0uMjYsMTAuOTZaTTc3LjMyLDIyOC40Yy0uMDktMi45Mi0xLjQxLTYuMjctNC40My02LjM2bC02LS4xOXYxMy40NHM0LjQ5LS4wMiw0LjQ5LS4wMmMzLjgtLjAyLDYuMDYtMi44OCw1Ljk1LTYuODdaIi8+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTE3Ny45MSwyMzguOTZsLTQuMjMtNy40OS00LjIyLS4xNy0uMDIsNy41My0zLjY2LS4wNXYtMjAuNDdzOC4xOC0uMDcsOC4xOC0uMDdjMy4yMS0uMDMsNS45NiwxLjY3LDYuODksNC41NCwxLDMuMS0uMzUsNi4yNi0zLjM3LDcuODlsNC42Nyw4LjA2LTQuMjQuMjNaTTE3NS41NSwyMjcuNjFjMS42My0uMDYsMi4xMi0yLjMyLDEuODYtMy4zOS0uMy0xLjI0LTEuNTYtMi4zNi0zLjAxLTIuMzdsLTQuOTctLjAzLjA0LDUuOTksNi4wOC0uMjFaIi8+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTEwNS4yMSwyMzMuOTRsLTguMDUtLjA3LTEuODksNC45My0zLjc2LjAzLDcuOTQtMjAuNSwzLjYxLjAyLDcuODcsMjAuNWgtMy44OXMtMS44My00LjkxLTEuODMtNC45MVpNMTAzLjc0LDIzMC4zMWwtMi41NC03LjI2LTIuNjgsNy4yNyw1LjIzLS4wMloiLz4KICAgICAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNNDUuNTEsMjMzLjkybC04LjA4LS4wMy0xLjg2LDQuOTItMy43Ny4wNSw3Ljk0LTIwLjUxLDMuNjEtLjAyLDcuODgsMjAuNTFoLTMuOTFzLTEuODEtNC45Mi0xLjgxLTQuOTJaTTQ0LjA1LDIzMC4zMWwtMi41OC03LjI3LTIuNjUsNy4yOSw1LjIzLS4wMloiLz4KICAgICAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMjU2Ljg3LDIzNy4zN2MtNC4zMiwzLjE4LTEwLjM4LDIuMDUtMTMuMjktMi40M2wyLjUxLTMuMDFjMS45MSwzLjUsNS4yNSw1LjA0LDguNTksMi45Mi40OC0uMzEuODMtMS42NC42LTIuMTdzLTEuMTEtMS41Mi0xLjY5LTEuNjlsLTQuODgtMS40NmMtMi44My0uODUtNC4zMS0zLjQ2LTQuMDktNi4wNS4yNS0yLjg5LDIuNTctNC44OCw1LjQ4LTUuMzQsMy41My0uNTUsNy4wNS40NSw4Ljc4LDMuNzJsLTIuNTEsMi40OGMtMS41Ny0yLjQzLTMuODktMy42Ny02LjcxLTIuNjItLjU5LjIyLTEuMzgsMS4zOS0xLjQyLDItLjA1LjcuODUsMi4wMiwxLjYsMi4yNWw1LjE5LDEuNjJjMS44My41NywzLjUzLDIuMzUsMy44MywzLjg2LjQyLDIuMTEtLjA2LDQuNS0xLjk4LDUuOTFaIi8+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTIyMS4zNiwyMzEuMTNsLS4wNSw3LjY4LTMuNjYtLjAzdi0yMC41M3M5LjM2LjE2LDkuMzYuMTZjMy4xNC4wNSw1LjE3LDMuMzUsNS4yMyw2LjA3LjA3LDMuMDktMS44OSw2LjQtNS4yNSw2LjQ5bC01LjY0LjE2Wk0yMjcuMTYsMjI3LjNjLjg1LS4wNCwxLjQ2LTIuMDIsMS40MS0yLjc3LS4wNS0uNzUtLjc1LTIuNDctMS41Ni0yLjUxbC01LjY4LS4yM3Y1LjhzNS44NC0uMjksNS44NC0uMjlaIi8+CiAgICAgIDxwb2x5Z29uIGNsYXNzPSJjbHMtMSIgcG9pbnRzPSIyMDQuMTQgMjM4Ljg0IDE5NC4wOSAyMzguODUgMTk0LjAzIDIzNS4zOSAxOTcuMjcgMjM1LjM2IDE5Ny4yOCAyMjEuNyAxOTQuMDQgMjIxLjYgMTk0LjA4IDIxOC4yNyAyMDQuMTMgMjE4LjI3IDIwNC4xNyAyMjEuNjQgMjAwLjk0IDIyMS42NCAyMDAuOTQgMjM1LjM2IDIwNC4xOCAyMzUuMzkgMjA0LjE0IDIzOC44NCIvPgogICAgICA8cG9seWdvbiBjbGFzcz0iY2xzLTEiIHBvaW50cz0iMTQ3LjYxIDIzOC43OSAxNDMuOTQgMjM4Ljg0IDE0My45NSAyMjEuODUgMTM4LjMzIDIyMS44MyAxMzguMzUgMjE4LjI4IDE1My4zNyAyMTguMjcgMTUzLjM5IDIyMS44NCAxNDcuNiAyMjEuODIgMTQ3LjYxIDIzOC43OSIvPgogICAgPC9nPgogICAgPGc+CiAgICAgIDxnPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTEwNy41OSw2MS4yNmMtLjEzLjE2LS4yOS4zMi0uNDMuNDctLjI2LjI4LS42MS41OC0xLjAzLjg5LTEuNDksMS4xLTMuMjQsMS44Mi01LjA2LDIuMTdsLTQwLjgzLDcuOSw1LTExLjksNDIuMzYuNDZaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMTM2Ljk2LDBsLTUuMTIsNDMuNjNjLS43Ny0uMS0xLjU1LS4xNC0yLjM0LS4xNHMtMS41Ny4wNS0yLjM0LjE0TDEyMi4wMywwaDE0LjkyWiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTEyMS4xNyw0NS40Yy0xLjYxLjc4LTMuMDgsMS43OC00LjQsMi45NmwtMjYuNTUtMjQuNjUsMTAuNy04Ljg3LDIwLjI1LDMwLjU2WiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTc5LjE1LDM3LjA1bDMzLjk5LDE1LjcyYy0uNjcsMS4xMi0xLjU0LDIuNC0yLjIzLDMuNDdsLTM4LjkyLTYuNjIsNy4xNi0xMi41N1oiLz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xNTEuNCw2MS4yNmMuMTMuMTYuMjkuMzIuNDMuNDcuMjYuMjguNjEuNTgsMS4wMy44OSwxLjQ5LDEuMSwzLjI0LDEuODIsNS4wNiwyLjE3bDQwLjgzLDcuOS01LTExLjktNDIuMzYuNDZaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMTM3LjgyLDQ1LjRjMS42MS43OCwzLjA4LDEuNzgsNC40LDIuOTZsMjYuNTUtMjQuNjUtMTAuNy04Ljg3LTIwLjI1LDMwLjU2WiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTE3OS44NCwzNy4wNWwtMzMuOTksMTUuNzJjLjY3LDEuMTIsMS41NCwyLjQsMi4yMywzLjQ3bDM4LjkyLTYuNjItNy4xNi0xMi41N1oiLz4KICAgICAgPC9nPgogICAgICA8Zz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xMjYuNTQsNjQuMDVsLS4yMy45NC02Ljg3LDI3Ljc4aC0xOS42NGwyMi40Ny0yNy43OC4wMi0uMDJjLjQ3LS41OSwxLjE4LS45MiwxLjkzLS45MmgyLjMzWiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTE1OS4yLDkyLjc2aC0xOS42M2wtNi44Ny0yNy43OC0uMjMtLjk0aDIuMzNjLjc1LDAsMS40Ni4zMywxLjkzLjkybC4wMi4wMiwyMi40NiwyNy43OFoiLz4KICAgICAgPC9nPgogICAgPC9nPgogIDwvZz4KPC9zdmc+", "mark": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjYwIDAgMTM5LjMgOTIuOCIgd2lkdGg9IjEzOSIgaGVpZ2h0PSI5MyI+PGcgZmlsbD0iIzFlMzUyZCI+PHBhdGggZD0iTTEwNy41OSw2MS4yNmMtLjEzLjE2LS4yOS4zMi0uNDMuNDctLjI2LjI4LS42MS41OC0xLjAzLjg5LTEuNDksMS4xLTMuMjQsMS44Mi01LjA2LDIuMTdsLTQwLjgzLDcuOSw1LTExLjksNDIuMzYuNDZaIi8+PHBhdGggZD0iTTEzNi45NiwwbC01LjEyLDQzLjYzYy0uNzctLjEtMS41NS0uMTQtMi4zNC0uMTRzLTEuNTcuMDUtMi4zNC4xNEwxMjIuMDMsMGgxNC45MloiLz48cGF0aCBkPSJNMTIxLjE3LDQ1LjRjLTEuNjEuNzgtMy4wOCwxLjc4LTQuNCwyLjk2bC0yNi41NS0yNC42NSwxMC43LTguODcsMjAuMjUsMzAuNTZaIi8+PHBhdGggZD0iTTc5LjE1LDM3LjA1bDMzLjk5LDE1LjcyYy0uNjcsMS4xMi0xLjU0LDIuNC0yLjIzLDMuNDdsLTM4LjkyLTYuNjIsNy4xNi0xMi41N1oiLz48cGF0aCBkPSJNMTUxLjQsNjEuMjZjLjEzLjE2LjI5LjMyLjQzLjQ3LjI2LjI4LjYxLjU4LDEuMDMuODksMS40OSwxLjEsMy4yNCwxLjgyLDUuMDYsMi4xN2w0MC44Myw3LjktNS0xMS45LTQyLjM2LjQ2WiIvPjxwYXRoIGQ9Ik0xMzcuODIsNDUuNGMxLjYxLjc4LDMuMDgsMS43OCw0LjQsMi45NmwyNi41NS0yNC42NS0xMC43LTguODctMjAuMjUsMzAuNTZaIi8+PHBhdGggZD0iTTE3OS44NCwzNy4wNWwtMzMuOTksMTUuNzJjLjY3LDEuMTIsMS41NCwyLjQsMi4yMywzLjQ3bDM4LjkyLTYuNjItNy4xNi0xMi41N1oiLz48cGF0aCBkPSJNMTI2LjU0LDY0LjA1bC0uMjMuOTQtNi44NywyNy43OGgtMTkuNjRsMjIuNDctMjcuNzguMDItLjAyYy40Ny0uNTksMS4xOC0uOTIsMS45My0uOTJoMi4zM1oiLz48cGF0aCBkPSJNMTU5LjIsOTIuNzZoLTE5LjYzbC02Ljg3LTI3Ljc4LS4yMy0uOTRoMi4zM2MuNzUsMCwxLjQ2LjMzLDEuOTMuOTJsLjAyLjAyLDIyLjQ2LDI3Ljc4WiIvPjwvZz48L3N2Zz4="};
+const CKEY='qrforge.card.v1';
+const SIZES={us:{label:'3.5 × 2 in · US standard',w:88.9,h:50.8},eu:{label:'85 × 55 mm · Europe',w:85,h:55},gulf:{label:'90 × 50 mm · Gulf & Asia',w:90,h:50},w90:{label:'90 × 55 mm',w:90,h:55}};
+const LATIN={Mulish:'"Mulish"',Montserrat:'"Montserrat"',Figtree:'"Figtree"'};
+const ARABIC={'IBM Plex Sans Arabic':'"IBM Plex Sans Arabic"',Tajawal:'"Tajawal"','Noto Kufi Arabic':'"Noto Kufi Arabic"'};
+const PERSON=['nameEn','nameAr','titleEn','titleAr','phone','email'];
+const CARD_DEFAULT={template:'split',back:'brand',size:'us',bg:'#F2ECE2',ink:'#1E352D',fontLatin:'Mulish',fontArabic:'IBM Plex Sans Arabic',
+  tintLogo:true,qrWhite:true,qrShow:true,qrSource:'vcard',guides:false,dpi:'600',bleed:true,marks:true,
+  nameEn:'',nameAr:'',titleEn:'',titleAr:'',company:'',phone:'',email:'',website:'',address:'',tagEn:'',tagAr:'',logo:null,mark:null,example:false};
+function cardExample(){ return Object.assign({},CARD_DEFAULT,{example:true,nameEn:'Alex Rivera',nameAr:'أليكس ريفيرا',titleEn:'Creative Director',titleAr:'المدير الإبداعي',
+  company:'Northwind Studio',phone:'+971 50 123 4567',email:'alex@northwind.studio',website:'www.northwind.studio',tagEn:'Design that travels',tagAr:'تصميم يسافر'}); }
+const normCard=c=>{ const o=Object.assign({},CARD_DEFAULT,c||{}); if(!SIZES[o.size]) o.size='us'; if(!LATIN[o.fontLatin]) o.fontLatin='Mulish'; if(!ARABIC[o.fontArabic]) o.fontArabic='IBM Plex Sans Arabic'; return o; };
+const BRANDS=[];
+if(BRAND_MADA) BRANDS.push({id:'mada',name:'Mada Trips',data:BRAND_MADA});
+let C=(()=>{ try{ const c=JSON.parse(store.get(CKEY)); if(c) return normCard(c); }catch(e){} return CARD_SEED?normCard(CARD_SEED):cardExample(); })();
+function saveCard(){ if(!store.set(CKEY,JSON.stringify(C))){ /* logo too big for storage: keep the rest */ store.set(CKEY,JSON.stringify(Object.assign({},C,{logo:null,mark:null}))); } }
+
+const IMGS={};
+async function cimg(src){ if(!src) return null; if(!(src in IMGS)) IMGS[src]=await loadImg(src); return IMGS[src]; }
+const cfont=(kind,w,s)=>kind==='ar'?`${w} ${s}px ${ARABIC[C.fontArabic]}, "Noto Sans Arabic", Tahoma, sans-serif`:`${w} ${s}px ${LATIN[C.fontLatin]}, Arial, sans-serif`;
+async function prepCard(){
+  const lf=LATIN[C.fontLatin], af=ARABIC[C.fontArabic];
+  await Promise.all([cimg(C.logo),cimg(C.mark),
+    ...[400,500,700,800].map(w=>document.fonts?document.fonts.load(`${w} 20px ${lf}`).catch(()=>{}):0),
+    ...[400,700].map(w=>document.fonts?document.fonts.load(`${w} 20px ${af}`,'عربي').catch(()=>{}):0)]);
+}
+let RK=10;
+const CICON={
+  phone:new Path2D('M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2'),
+  mail:new Path2D('M4.5 5h15A1.5 1.5 0 0 1 21 6.5v11a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5v-11A1.5 1.5 0 0 1 4.5 5zM3.5 6.2l8.5 6.6 8.5-6.6'),
+  globe:new Path2D('M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0M3.5 12h17M12 3c2.6 2.6 3.9 5.6 3.9 9s-1.3 6.4-3.9 9M12 3c-2.6 2.6-3.9 5.6-3.9 9s1.3 6.4 3.9 9'),
+  pin:new Path2D('M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11zM9.5 10a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0 -5 0')
+};
+function ctext(ctx,str,x,y,o){
+  if(!str) return; let s=o.size; const kind=o.kind||'en', track=o.track||0;
+  const meas=()=>{ ctx.font=cfont(kind,o.weight||400,s); ctx.direction=kind==='ar'?'rtl':'ltr';
+    if(!track||kind==='ar') return ctx.measureText(str).width;
+    let w=0; for(const ch of str) w+=ctx.measureText(ch).width; return w+track*s*(str.length-1); };
+  let w=meas(); if(o.max&&w>o.max){ s*=o.max/w; w=meas(); }
+  ctx.fillStyle=o.color; ctx.textBaseline='alphabetic';
+  if(track&&kind!=='ar'){ let cx=o.align==='center'?x-w/2:o.align==='right'?x-w:x; ctx.textAlign='left';
+    for(const ch of str){ ctx.fillText(ch,cx,y); cx+=ctx.measureText(ch).width+track*s; } }
+  else { ctx.textAlign=o.align||'left'; ctx.fillText(str,x,y); }
+}
+function tinted(im,wPx,hPx,color){
+  const c=document.createElement('canvas'); c.width=Math.max(1,Math.round(wPx)); c.height=Math.max(1,Math.round(hPx));
+  const x=c.getContext('2d'); x.drawImage(im,0,0,c.width,c.height);
+  if(color){ x.globalCompositeOperation='source-in'; x.fillStyle=color; x.fillRect(0,0,c.width,c.height); }
+  return c;
+}
+function drawLogo(ctx,im,cx,cy,bw,bh,color){
+  const ar=(im.naturalWidth||im.width)/(im.naturalHeight||im.height)||1; let w=bw,h=bw/ar; if(h>bh){h=bh;w=bh*ar;}
+  ctx.drawImage(tinted(im,w*RK,h*RK,color),cx-w/2,cy-h/2,w,h);
+}
+function darker(a,b){ return lum(a)<=lum(b)?a:b; }
+function lighter(a,b){ return lum(a)>lum(b)?a:b; }
+function cardVCard(){
+  const n=C.nameEn.trim().split(/\s+/).filter(Boolean), last=n.length>1?n.pop():'', first=n.join(' ');
+  return {first,last,org:C.company,title:C.titleEn,phones:[{type:'CELL',value:C.phone}],emails:[{type:'WORK',value:C.email}],websites:[{type:'WORK',value:C.website}],socials:[],
+    addr:{street:C.address,city:'',region:'',zip:'',country:''},bday:'',note:'',extras:{addr:!!C.address.trim(),bday:false,note:false}};
+}
+function cardQRState(){
+  const fg=C.qrWhite?darker(C.ink,C.bg):C.ink, bg=C.qrWhite?'#FFFFFF':C.bg;
+  const st=Object.assign(clone(DEFAULT_STYLE),{shape:'rounded',eyeFrame:'rounded',eyeBall:'rounded',fill:'solid',fg,bg,eyeCustom:false,ecc:'Q',margin:C.qrWhite?2:1,
+    logoSize:28,logoPlate:false,logoClear:true,frame:'none',transparent:false});
+  if(C.qrSource==='qrtab'){ const s=clone(S); s.style=st; return buildPayload(s)?s:null; }
+  if(C.qrSource==='website') return C.website.trim()?{type:'url',url:{value:C.website},style:st}:null;
+  const s={type:'vcard',vcard:cardVCard(),style:st}; return buildPayload(s)?s:null;
+}
+function drawCardQR(ctx,x,y,s){
+  const qs=cardQRState(); if(!qs) return false;
+  const src=IMGS[C.mark]||IMGS[C.logo]; let mark=null;
+  if(src){ const ar=(src.naturalWidth||src.width)/(src.naturalHeight||src.height)||1; mark=tinted(src,ar>=1?512:512*ar,ar>=1?512/ar:512,C.tintLogo?qs.style.fg:null); }
+  let M; try{ M=build(qs,mark); }catch(e){ return false; }
+  const cv=renderCanvas(M,qs,mark,Math.max(96,Math.round(s*RK)));
+  ctx.drawImage(cv,x,y,s,s); return true;
+}
+function drawStack(ctx,W,H,x0,right,cy){
+  const V=p=>p*H/948, F=p=>p*Math.min(H/948,W/1659), ink=C.ink, it=[];
+  if(C.nameAr.trim()) it.push({k:'ar',w:700,s:F(64),t:C.nameAr.trim(),g:0});
+  if(C.nameEn.trim()) it.push({k:'en',w:800,s:F(58),t:C.nameEn.trim(),g:V(99)});
+  if(C.titleAr.trim()) it.push({k:'ar',w:400,s:F(44),t:C.titleAr.trim(),g:V(76)});
+  if(C.titleEn.trim()) it.push({k:'en',w:400,s:F(42),t:C.titleEn.trim(),g:V(68)});
+  const rows=[['phone',C.phone],['mail',C.email],['globe',C.website],['pin',C.address]].filter(r=>r[1]&&r[1].trim());
+  if(rows.length){ if(it.length) it.push({rule:true,g:V(53),s:0}); rows.forEach((r,i)=>it.push({icon:r[0],k:'en',w:400,s:F(37),t:r[1].trim(),g:i===0&&it.length?V(85):V(75)})); }
+  if(!it.length) return;
+  let y=0; it.forEach((o,i)=>{ if(i) y+=o.g; o.y=y; });
+  const first=it[0], last=it[it.length-1];
+  const top=first.y-(first.s||0)*.85, bot=last.y+(last.s||0)*.25, dy=cy-(top+bot)/2;
+  it.forEach(o=>{
+    const yy=o.y+dy;
+    if(o.rule){ ctx.fillStyle=ink; ctx.fillRect(x0,yy-V(1.3),right-x0,V(2.6)); return; }
+    if(o.icon){ const is=F(50); ctx.save(); ctx.translate(x0,yy-o.s*.36-is/2); ctx.scale(is/24,is/24); ctx.strokeStyle=ink; ctx.lineWidth=1.5; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.stroke(CICON[o.icon]); ctx.restore();
+      ctext(ctx,o.t,x0+F(73),yy,{kind:'en',weight:400,size:o.s,color:ink,max:right-x0-F(73)}); return; }
+    ctext(ctx,o.t,x0,yy,{kind:o.k,weight:o.w,size:o.s,color:ink,max:right-x0});
+  });
+}
+function wordmark(ctx,cx,cy,maxW,size,color){ ctext(ctx,C.company||C.nameEn,cx,cy+size*.35,{kind:'en',weight:800,size,color,align:'center',max:maxW}); }
+function drawFront(ctx,W,H){
+  const X=f=>f*W, Y=f=>f*H, V=p=>p*H/948, F=p=>p*Math.min(H/948,W/1659), ink=C.ink, logo=IMGS[C.logo];
+  if(C.template==='split'){
+    if(logo) drawLogo(ctx,logo,X(.157),Y(.435),X(.205),Y(.36),C.tintLogo?ink:null); else wordmark(ctx,X(.157),Y(.44),X(.24),F(52),ink);
+    ctext(ctx,C.tagAr.trim(),X(.157),Y(.735),{kind:'ar',weight:400,size:F(46),color:ink,align:'center',max:X(.24)});
+    ctext(ctx,C.tagEn.trim(),X(.157),Y(.80),{kind:'en',weight:500,size:F(36),color:ink,align:'center',max:X(.25),track:.09});
+    ctx.fillStyle=ink; ctx.fillRect(X(.302)-V(1.5),Y(.15),V(3),Y(.708));
+    const s=Math.min(X(.239),Y(.42)), qx=X(.951)-s;
+    const has=C.qrShow&&drawCardQR(ctx,qx,Y(.501)-s/2,s);
+    drawStack(ctx,W,H,X(.3466),has?qx-X(.039):X(.94),Y(.513));
+  } else if(C.template==='stacked'){
+    const rx=X(.80), qs=C.qrShow&&cardQRState();
+    if(logo) drawLogo(ctx,logo,rx,qs?Y(.25):Y(.5),X(.26),qs?Y(.26):Y(.5),C.tintLogo?ink:null); else wordmark(ctx,rx,qs?Y(.25):Y(.5),X(.3),F(44),ink);
+    if(qs){ const s=Math.min(X(.2),Y(.42)); drawCardQR(ctx,rx-s/2,Y(.69)-s/2,s); }
+    drawStack(ctx,W,H,X(.07),X(.63),Y(.5));
+  } else {
+    const s=Math.min(X(.239),Y(.42)), qx=X(.93)-s;
+    const has=C.qrShow&&drawCardQR(ctx,qx,Y(.5)-s/2,s);
+    drawStack(ctx,W,H,X(.07),has?qx-X(.05):X(.93),Y(.5));
+  }
+}
+const QRCAP={vcard:['Scan to save my contact','امسح الرمز لحفظ جهة الاتصال'],website:['Scan to visit our website','امسح الرمز لزيارة موقعنا'],qrtab:['Scan me','امسح الرمز']};
+function drawBack(ctx,W,H){
+  const X=f=>f*W, Y=f=>f*H, F=p=>p*Math.min(H/948,W/1659), logo=IMGS[C.logo];
+  if(C.back==='qr'){
+    const s=Y(.54); if(!drawCardQR(ctx,W/2-s/2,Y(.4)-s/2,s)) return;
+    const cap=QRCAP[C.qrSource]||QRCAP.vcard;
+    ctext(ctx,cap[0],W/2,Y(.82),{kind:'en',weight:700,size:F(36),color:C.ink,align:'center',max:X(.8)});
+    ctext(ctx,cap[1],W/2,Y(.91),{kind:'ar',weight:400,size:F(34),color:C.ink,align:'center',max:X(.8)});
+    return;
+  }
+  const col=C.back==='brand'?C.bg:C.ink, tag=C.tagAr.trim()||C.tagEn.trim();
+  const cy=tag?Y(.42):Y(.5);
+  if(logo) drawLogo(ctx,logo,W/2,cy,X(.34),tag?Y(.44):Y(.52),C.back==='brand'||C.tintLogo?col:null); else wordmark(ctx,W/2,cy,X(.7),F(70),col);
+  ctext(ctx,C.tagAr.trim(),W/2,Y(.77),{kind:'ar',weight:400,size:F(46),color:col,align:'center',max:X(.6)});
+  ctext(ctx,C.tagEn.trim(),W/2,Y(C.tagAr.trim()?.85:.79),{kind:'en',weight:500,size:F(36),color:col,align:'center',max:X(.6),track:.09});
+}
+function renderCard(side,k,o={}){
+  const {w,h}=SIZES[C.size], b=o.bleed||0; RK=k;
+  const cv=document.createElement('canvas'); cv.width=Math.round((w+2*b)*k); cv.height=Math.round((h+2*b)*k);
+  const ctx=cv.getContext('2d'); ctx.scale(k,k); ctx.translate(b,b);
+  const dark=side==='back'&&C.back==='brand';
+  ctx.fillStyle=dark?C.ink:C.bg; ctx.fillRect(-b,-b,w+2*b,h+2*b);
+  side==='front'?drawFront(ctx,w,h):drawBack(ctx,w,h);
+  if(o.guides){ ctx.save(); ctx.setLineDash([1.2,.9]); ctx.lineWidth=.2; ctx.strokeStyle=dark?'rgba(255,255,255,.6)':'rgba(31,59,255,.7)'; ctx.strokeRect(3,3,w-6,h-6); ctx.restore(); }
+  return cv;
+}
+
+/* ---- card UI ---- */
+const TPL=[['split','Split','<rect x=".75" y=".75" width="34.5" height="20.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="7" cy="8.5" r="2.6"/><rect x="4" y="13" width="6" height="1.2" rx=".6"/><rect x="12.2" y="4" width=".7" height="14"/><rect x="15" y="5.5" width="9" height="1.8" rx=".9"/><rect x="15" y="8.8" width="7" height="1.2" rx=".6"/><rect x="15" y="11.6" width="9" height=".5"/><rect x="15" y="13.6" width="7" height=".9" rx=".45"/><rect x="15" y="15.8" width="6" height=".9" rx=".45"/><rect x="26" y="7.5" width="7" height="7" rx=".8"/>'],
+  ['stacked','Stacked','<rect x=".75" y=".75" width="34.5" height="20.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/><rect x="4" y="5" width="11" height="1.8" rx=".9"/><rect x="4" y="8.4" width="8" height="1.2" rx=".6"/><rect x="4" y="11.6" width="14" height=".5"/><rect x="4" y="13.6" width="9" height=".9" rx=".45"/><rect x="4" y="15.8" width="8" height=".9" rx=".45"/><circle cx="29" cy="6" r="2.4"/><rect x="25.5" y="10.5" width="7" height="7" rx=".8"/>'],
+  ['minimal','Minimal','<rect x=".75" y=".75" width="34.5" height="20.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/><rect x="4" y="5.5" width="11" height="1.8" rx=".9"/><rect x="4" y="8.8" width="8" height="1.2" rx=".6"/><rect x="4" y="11.8" width="13" height=".5"/><rect x="4" y="13.8" width="9" height=".9" rx=".45"/><rect x="4" y="16" width="8" height=".9" rx=".45"/><rect x="24" y="6.5" width="8.5" height="8.5" rx=".8"/>']];
+const BACKS=[['brand','Brand colour','<rect x=".5" y=".5" width="35" height="21" rx="1.5"/><circle cx="18" cy="9" r="3.4" fill="#fff"/><rect x="13" y="15" width="10" height="1.2" rx=".6" fill="#fff"/>'],
+  ['light','Logo on card','<rect x=".75" y=".75" width="34.5" height="20.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="18" cy="9" r="3.4"/><rect x="13" y="15" width="10" height="1.2" rx=".6"/>'],
+  ['qr','Big QR','<rect x=".75" y=".75" width="34.5" height="20.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/><rect x="13.5" y="3.5" width="9" height="9" rx=".8"/><rect x="11" y="15" width="14" height="1.2" rx=".6"/><rect x="13" y="17.4" width="10" height=".9" rx=".45"/>'],
+  ['none','No back','<rect x=".75" y=".75" width="34.5" height="20.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M6 17L30 5" stroke="currentColor" stroke-width="1.2"/>']];
+const CPAL=[['#F2ECE2','#1E352D','Sage'],['#FFFFFF','#0B0F1A','Ink'],['#0E2A47','#F4EFE6','Navy'],['#EFE6D8','#5A3E1B','Sand'],['#111111','#D9B46A','Gold'],['#FFFFFF','#1F3BFF','Cobalt']];
+$('#ct-template').innerHTML=TPL.map(([v,l,s])=>`<button class="tile ctile" data-cset="template" data-val="${v}" aria-pressed="false"><svg viewBox="0 0 36 22">${s}</svg><span>${l}</span></button>`).join('');
+$('#ct-back').innerHTML=BACKS.map(([v,l,s])=>`<button class="tile ctile" data-cset="back" data-val="${v}" aria-pressed="false"><svg viewBox="0 0 36 22">${s}</svg><span>${l}</span></button>`).join('');
+$('#cd-pal').innerHTML=CPAL.map(([a,b,n])=>`<button data-cpal="${a},${b}" title="${n}" aria-label="${n} colours"><i style="background:${a}"></i><i style="background:${b}"></i></button>`).join('');
+$('#cd-size').innerHTML=Object.entries(SIZES).map(([k,v])=>`<option value="${k}">${v.label}</option>`).join('');
+$('#cd-fl').innerHTML=Object.keys(LATIN).map(k=>`<option>${k}</option>`).join('');
+$('#cd-fa').innerHTML=Object.keys(ARABIC).map(k=>`<option>${k}</option>`).join('');
+$('#brand-btns').innerHTML=BRANDS.map(b=>`<button class="btn small" data-brand="${b.id}">Use ${b.name}</button>`).join('')+'<button class="btn small" id="brand-save">Save as my brand</button>';
+let myBrand=(()=>{ try{ return JSON.parse(store.get(CKEY+'.brand')); }catch(e){ return null; } })();
+function renderBrandBtns(){
+  let mine=$('#brand-mine'); if(myBrand&&!mine){ mine=document.createElement('button'); mine.className='btn small'; mine.id='brand-mine'; mine.dataset.brand='mine'; $('#brand-save').before(mine); }
+  if(mine) mine.textContent='Use '+(myBrand.company||'my brand');
+}
+renderBrandBtns();
+
+function syncCardColor(k){ $$(`[data-cc="${k}"]`).forEach(e=>e.value=C[k]); $$(`[data-cct="${k}"]`).forEach(e=>{ if(document.activeElement!==e) e.value=C[k].toUpperCase(); }); }
+function fillCard(){
+  $$('[data-ck]').forEach(el=>{ const v=C[el.dataset.ck]; if(el.type==='checkbox') el.checked=!!v; else if(document.activeElement!==el) el.value=v??''; });
+  syncCardColor('bg'); syncCardColor('ink');
+}
+function refreshCardUI(){
+  $$('[data-cset]').forEach(b=>b.setAttribute('aria-pressed',C[b.dataset.cset]===b.dataset.val));
+  $$('#qsrc button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.qsrc===C.qrSource));
+  const th=(id,src)=>{ const t=$(id); t.style.backgroundImage=src?`url("${src}")`:''; t.textContent=src?'':'+'; };
+  th('#cd-logo-thumb',C.logo); th('#cd-mark-thumb',C.mark);
+  $('#cd-logo-rm').hidden=!C.logo; $('#cd-mark-rm').hidden=!C.mark;
+  $('#cd-backfig').hidden=C.back==='none'; $('#cd-png-b').disabled=C.back==='none';
+  const {w,h}=SIZES[C.size]; $('#cd-dims').textContent=`${w} × ${h} mm`;
+  $('#card-example').hidden=!C.example;
+  $('#qsrc-hint').textContent={vcard:'Scanning offers "Add to contacts" with the name, title, phone, email and website from this card.',
+    website:C.website.trim()?'Scanning opens the website.':'Add a website above to use this.',qrtab:'Uses whatever you set up in the QR code tab.'}[C.qrSource];
+  $('#cd-share-wrap').hidden=!!window.claude;
+}
+let craf=0;
+function cardUpdate(){ if(craf) return; craf=requestAnimationFrame(async()=>{ craf=0; refreshCardUI(); await prepCard();
+  const {w}=SIZES[C.size], k=1000/w;
+  $('#cd-front').src=renderCard('front',k,{guides:C.guides}).toDataURL();
+  if(C.back!=='none') $('#cd-back').src=renderCard('back',k,{guides:C.guides}).toDataURL();
+  saveCard(); }); }
+
+document.addEventListener('input',e=>{ const el=e.target;
+  if(el.dataset.ck){ C[el.dataset.ck]=el.type==='checkbox'?el.checked:el.value; cardUpdate(); }
+  else if(el.dataset.cc){ C[el.dataset.cc]=el.value.toUpperCase(); syncCardColor(el.dataset.cc); cardUpdate(); }
+  else if(el.dataset.cct){ let v=el.value.trim(); if(!v.startsWith('#')) v='#'+v; if(/^#[0-9a-f]{6}$/i.test(v)){ C[el.dataset.cct]=v.toUpperCase(); syncCardColor(el.dataset.cct); cardUpdate(); } }
+});
+document.addEventListener('change',e=>{ if(e.target.dataset&&e.target.dataset.ck&&e.target.type==='checkbox'){ C[e.target.dataset.ck]=e.target.checked; cardUpdate(); } });
+document.addEventListener('focusin',e=>{ if(C.example&&e.target.closest('#card-bench')&&e.target.matches('input[data-ck]:not([type=checkbox])')){ C.example=false; $('#card-example').hidden=true; } });
+function cardSnap(){ const s=JSON.stringify(C); return ()=>{ C=normCard(JSON.parse(s)); fillCard(); cardUpdate(); toast('Restored'); }; }
+function applyBrand(data,label){
+  const undo=cardSnap(); const keep={}; PERSON.forEach(k=>keep[k]=C.example?'':C[k]);
+  C=normCard(Object.assign({},C,data,keep,{example:false})); fillCard(); cardUpdate(); toast(`${label} brand applied`,undo);
+}
+document.addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; const d=b.dataset;
+  if(d.cset){ C[d.cset]=d.val; cardUpdate(); }
+  else if(d.qsrc){ C.qrSource=d.qsrc; cardUpdate(); }
+  else if(d.cpal){ const [a,c]=d.cpal.split(','); C.bg=a; C.ink=c; syncCardColor('bg'); syncCardColor('ink'); cardUpdate(); }
+  else if(d.brand){ if(d.brand==='mine'&&myBrand) applyBrand(myBrand,myBrand.company||'Your'); else { const br=BRANDS.find(x=>x.id===d.brand); if(br) applyBrand(br.data,br.name); } }
+  else if(d.mode){ setMode(d.mode); }
+});
+$('#brand-save').onclick=()=>{ const br={}; Object.keys(CARD_DEFAULT).forEach(k=>{ if(!PERSON.includes(k)&&k!=='example') br[k]=C[k]; });
+  myBrand=br; if(!store.set(CKEY+'.brand',JSON.stringify(br))){ toast('Browser storage is full or blocked, so the brand wasn\'t saved.'); return; }
+  renderBrandBtns(); toast(`Saved "${br.company||'my brand'}": logo, colours, layout, company details`); };
+$('#cd-new').onclick=()=>{ const undo=cardSnap(); PERSON.forEach(k=>C[k]=''); C.example=false; fillCard(); cardUpdate(); $('#cd-nameEn').focus(); toast('Ready for the next person. Brand kept.',undo); };
+$('#cd-clear').onclick=()=>{ const undo=cardSnap(); ['nameEn','nameAr','titleEn','titleAr','phone','email','company','website','address','tagEn','tagAr'].forEach(k=>C[k]=''); C.example=false; fillCard(); cardUpdate(); toast('Details cleared',undo); };
+
+function svgSized(text){
+  if(/<svg[^>]*\swidth=/.test(text.slice(0,text.indexOf('>',text.indexOf('<svg'))+1))) return text;
+  const m=text.match(/viewBox=["']\s*[-\d.]+[\s,]+[-\d.]+[\s,]+([\d.]+)[\s,]+([\d.]+)/); if(!m) return text;
+  return text.replace(/<svg\b/,`<svg width="${m[1]}" height="${m[2]}"`);
+}
+const b64u=s=>btoa(String.fromCharCode(...new TextEncoder().encode(s)));
+function readCardImage(file,key){
+  if(!file) return; if(!/^image\//.test(file.type)){ toast('That file isn\'t an image. Use SVG, PNG or JPG.'); return; }
+  const r=new FileReader(), svg=/svg/.test(file.type);
+  r.onload=async()=>{ const data=svg?'data:image/svg+xml;base64,'+b64u(svgSized(r.result)):r.result;
+    if(!await cimg(data)){ toast('Couldn\'t read that image. Try a PNG or SVG.'); return; }
+    const undo=cardSnap(); C[key]=data; cardUpdate(); toast(key==='logo'?'Logo added':'QR centre icon added',undo); };
+  svg?r.readAsText(file):r.readAsDataURL(file);
+}
+[['#cd-logo','#cd-drop-logo','logo'],['#cd-mark','#cd-drop-mark','mark']].forEach(([inp,dz,key])=>{
+  $(inp).onchange=e=>{ readCardImage(e.target.files[0],key); e.target.value=''; };
+  const z=$(dz);
+  ['dragenter','dragover'].forEach(ev=>z.addEventListener(ev,e=>{e.preventDefault();z.classList.add('over');}));
+  ['dragleave','drop'].forEach(ev=>z.addEventListener(ev,e=>{e.preventDefault();z.classList.remove('over');}));
+  z.addEventListener('drop',e=>readCardImage(e.dataTransfer.files[0],key));
+});
+$('#cd-logo-rm').onclick=()=>{ const undo=cardSnap(); C.logo=null; cardUpdate(); toast('Logo removed',undo); };
+$('#cd-mark-rm').onclick=()=>{ const undo=cardSnap(); C.mark=null; cardUpdate(); toast('Icon removed',undo); };
+
+/* ---- card export ---- */
+const cardBase=()=>'card-'+((C.nameEn||C.company||'business').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'business');
+async function cardPNG(side){ await prepCard(); const cv=renderCard(side,+C.dpi/25.4); download(await canvasBlob(cv,'image/png'),`${cardBase()}-${side}.png`); }
+$('#cd-png-f').onclick=()=>cardPNG('front'); $('#cd-png-b').onclick=()=>cardPNG('back');
+let jsPDFp=null;
+function loadJsPDF(){ if(window.jspdf) return Promise.resolve(window.jspdf.jsPDF);
+  if(!jsPDFp) jsPDFp=new Promise((res,rej)=>{ const s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'; s.onload=()=>res(window.jspdf.jsPDF); s.onerror=()=>{ jsPDFp=null; rej(); }; document.head.appendChild(s); });
+  return jsPDFp; }
+async function withPDF(btn,fn){
+  const label=btn.innerHTML; btn.disabled=true; btn.textContent='Preparing PDF…';
+  try{ const J=await loadJsPDF(); await prepCard(); await fn(J); }
+  catch(e){ toast('Couldn\'t create the PDF. Check your connection and try again.'); }
+  finally{ btn.disabled=false; btn.innerHTML=label; }
+}
+const sides=()=>C.back==='none'?['front']:['front','back'];
+$('#cd-pdf').onclick=()=>withPDF($('#cd-pdf'),async J=>{
+  const {w,h}=SIZES[C.size], b=C.bleed?3:0, off=C.marks?6:0, pw=w+2*(b+off), ph=h+2*(b+off), k=+C.dpi/25.4, or=pw>ph?'landscape':'portrait';
+  const pdf=new J({unit:'mm',format:[pw,ph],orientation:or});
+  sides().forEach((sd,i)=>{ if(i) pdf.addPage([pw,ph],or);
+    pdf.addImage(renderCard(sd,k,{bleed:b}).toDataURL('image/png'),'PNG',off,off,w+2*b,h+2*b,undefined,'FAST');
+    if(off){ const x0=off+b,y0=off+b; pdf.setDrawColor(0); pdf.setLineWidth(.12);
+      [x0,x0+w].forEach(x=>{ pdf.line(x,.5,x,off-.8); pdf.line(x,ph-off+.8,x,ph-.5); });
+      [y0,y0+h].forEach(y=>{ pdf.line(.5,y,off-.8,y); pdf.line(pw-off+.8,y,pw-.5,y); }); } });
+  download(pdf.output('blob'),`${cardBase()}-print.pdf`);
+});
+$('#cd-sheet').onclick=()=>withPDF($('#cd-sheet'),async J=>{
+  const {w,h}=SIZES[C.size], PW=210, PH=297, cols=Math.floor((PW-16)/w), rows=Math.floor((PH-16)/h), gx=(PW-cols*w)/2, gy=(PH-rows*h)/2, k=+C.dpi/25.4;
+  const pdf=new J({unit:'mm',format:'a4'});
+  sides().forEach((sd,i)=>{ if(i) pdf.addPage('a4','portrait');
+    const data=renderCard(sd,k).toDataURL('image/png');
+    for(let r=0;r<rows;r++) for(let c=0;c<cols;c++) pdf.addImage(data,'PNG',gx+c*w,gy+r*h,w,h,'card-'+sd,'FAST');
+    pdf.setDrawColor(120); pdf.setLineWidth(.15);
+    for(let c=0;c<=cols;c++){ const x=gx+c*w; pdf.line(x,2,x,gy-1.5); pdf.line(x,PH-gy+1.5,x,PH-2); }
+    for(let r=0;r<=rows;r++){ const y=gy+r*h; pdf.line(2,y,gx-1.5,y); pdf.line(PW-gx+1.5,y,PW-2,y); } });
+  download(pdf.output('blob'),`${cardBase()}-a4-sheet.pdf`);
+});
+
+/* ---- share link ---- */
+async function encodeCard(){
+  const bytes=new TextEncoder().encode(JSON.stringify(Object.assign({},C,{example:false}))); let out=bytes, pre='j';
+  if(window.CompressionStream){ try{ out=new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(new CompressionStream('deflate-raw'))).arrayBuffer()); pre='z'; }catch(e){ out=bytes; } }
+  let bin=''; for(let i=0;i<out.length;i+=8192) bin+=String.fromCharCode(...out.subarray(i,i+8192));
+  return pre+btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+async function decodeCard(str){
+  let b=str.slice(1).replace(/-/g,'+').replace(/_/g,'/'); while(b.length%4) b+='=';
+  let data=Uint8Array.from(atob(b),c=>c.charCodeAt(0));
+  if(str[0]==='z') data=new Uint8Array(await new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer());
+  return JSON.parse(new TextDecoder().decode(data));
+}
+$('#cd-share').onclick=async()=>{
+  const link=location.origin+location.pathname+'#card='+await encodeCard();
+  $('#cd-share-out').hidden=false; $('#cd-share-link').value=link;
+  try{ navigator.clipboard.writeText(link).then(()=>toast('Link copied'),()=>{ $('#cd-share-link').select(); toast('Press Ctrl/Cmd + C to copy the link'); }); }catch(e){ $('#cd-share-link').select(); }
+};
+$('#cd-share-copy').onclick=()=>{ const i=$('#cd-share-link'); i.select(); try{ navigator.clipboard.writeText(i.value).then(()=>toast('Link copied'),()=>toast('Press Ctrl/Cmd + C to copy')); }catch(e){} };
+
+/* ---- mode ---- */
+function setMode(m){
+  m=m==='card'?'card':'qr';
+  $$('[data-mode]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.mode===m));
+  $('#qr-bench').hidden=m!=='qr'; $('#library').hidden=m!=='qr'; $('#card-bench').hidden=m!=='card'; $('#mbar').hidden=m!=='qr';
+  store.set('qrforge.mode',m); if(m==='card') cardUpdate();
+}
+async function cardBoot(){
+  fillCard();
+  let mode=store.get('qrforge.mode')||'qr';
+  if(location.hash.startsWith('#card=')){
+    try{ C=normCard(await decodeCard(location.hash.slice(6))); C.example=false; fillCard(); mode='card'; toast('Card design loaded'); }
+    catch(e){ toast('That card link is incomplete or damaged.'); }
+    try{ history.replaceState(null,'',location.pathname+location.search); }catch(e){}
+  }
+  setMode(mode);
+}
+
 /* ================= boot ================= */
 (async()=>{
   await setLogo(logoData,false);
   fillForm(); renderLib(); renderPresets(); render();
+  await cardBoot();
   if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>{ renderPresets(); update(); });
 })();
 })();
