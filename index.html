@@ -40,13 +40,18 @@ button{cursor:pointer}
 .brand i{width:28px;height:28px;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:3px;background:var(--ink);border-radius:6px}
 .brand i b{background:var(--bg);border-radius:1px}
 .brand i b:nth-child(2),.brand i b:nth-child(4),.brand i b:nth-child(9){background:var(--signal)}
-.top small{font-family:var(--f-mono);font-size:12px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.trust{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;list-style:none;margin:0;padding:0}
+.trust li{display:inline-flex;align-items:center;gap:7px;font:600 13px var(--f-body);color:var(--ink);background:var(--paper);border:2px solid var(--line);border-radius:999px;padding:5px 12px 5px 6px;white-space:nowrap}
+.trust svg{width:18px;height:18px;flex:none}
+.trust .tick{fill:var(--accent)} .trust li:nth-child(2) .tick{fill:var(--ok)} .trust li:nth-child(3) .tick{fill:var(--ink)}
 .hero{padding-block:6px 28px;display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:32px;align-items:end}
 .hero h1{font-family:var(--f-display);font-weight:900;font-size:clamp(30px,5vw,58px);line-height:1;letter-spacing:-.035em;margin:0;text-wrap:balance}
 .hero h1 em{font-style:normal;background:var(--signal);padding:0 .12em;border-radius:.12em;box-decoration-break:clone;-webkit-box-decoration-break:clone}
 .hero p{margin:0;color:var(--muted);font-size:16px;max-width:44ch}
 .hero .feat{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
-.hero .feat span{font:700 11px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;border:2px solid var(--line);border-radius:999px;padding:3px 9px;background:var(--paper)}
+.hero .feat span{display:inline-flex;align-items:center;gap:7px;font:600 13px var(--f-body);border:2px solid var(--line);border-radius:999px;padding:4px 12px 4px 9px;background:var(--paper)}
+.hero .feat span::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--accent);transform:rotate(45deg)}
+.hero .feat span:nth-child(3n+2)::before{background:var(--signal)} .hero .feat span:nth-child(3n)::before{background:var(--ink);border-radius:50%}
 
 /* workbench */
 .bench{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px;align-items:start;padding-bottom:36px}
@@ -191,7 +196,7 @@ details pre{margin:0;padding:0 12px 12px;font:500 12px/1.5 var(--f-mono);white-s
 .fact h4{margin:0 0 8px;font:700 15px var(--f-display);letter-spacing:-.01em}
 .fact p{margin:0;color:var(--muted);font-size:14px;max-width:46ch}
 .fact code{font:600 12px var(--f-mono);background:var(--paper);border-radius:4px;padding:1px 5px;color:var(--ink)}
-footer{padding-block:16px 30px;font:500 12px var(--f-mono);color:var(--muted)}
+
 
 /* toast + mobile bar */
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,120px);opacity:0;pointer-events:none;background:var(--ink);color:var(--paper);font:600 14px var(--f-body);padding:8px 8px 8px 16px;border-radius:999px;transition:transform .25s,opacity .25s;z-index:30;display:flex;align-items:center;gap:12px;max-width:calc(100% - 32px)}
@@ -224,6 +229,28 @@ input[dir="rtl"],textarea[dir="rtl"]{font-family:"IBM Plex Sans Arabic",var(--f-
 .cardfig figcaption{display:flex;justify-content:space-between;gap:8px;font:700 11px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .cardfig img{width:100%;height:auto;display:block;border-radius:3px;box-shadow:0 1px 1px rgba(11,15,26,.1),0 12px 26px rgba(11,15,26,.18)}
 .checks{display:grid;gap:8px}
+/* footer */
+.site-foot{background:var(--ink);color:#E7EAF1;font:400 15px/1.5 var(--f-body);margin-top:12px;padding-block:52px 22px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));overflow:hidden}
+.foot-in{max-width:1220px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1.6fr) repeat(3,minmax(0,1fr));gap:32px}
+.site-foot .brand{color:#FFFFFF}
+.site-foot .brand i{background:#E7EAF1}
+.site-foot .brand i b{background:var(--ink)}
+.site-foot .brand i b:nth-child(2),.site-foot .brand i b:nth-child(4),.site-foot .brand i b:nth-child(9){background:var(--signal)}
+.foot-brand p{color:#9AA3B8;max-width:42ch;margin:14px 0 18px}
+.foot-cta{display:flex;gap:10px;flex-wrap:wrap}
+.site-foot .btn{border-color:#E7EAF1;box-shadow:3px 3px 0 #000}
+.site-foot .btn:not(.primary){background:transparent;color:#E7EAF1}
+.foot-col h5{margin:0 0 14px;font:700 12px var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--signal)}
+.foot-col ul{list-style:none;margin:0;padding:0;display:grid;gap:9px}
+.foot-col button,.foot-col a{background:none;border:0;padding:0;color:#E7EAF1;font:500 14px var(--f-body);text-decoration:none;text-align:left}
+.foot-col button:hover,.foot-col a:hover{color:var(--signal);text-decoration:underline;text-underline-offset:3px}
+.foot-col .plain li{color:#9AA3B8;font-size:14px;padding-left:16px;position:relative}
+.foot-col .plain li::before{content:"";position:absolute;left:0;top:.6em;width:6px;height:6px;border-radius:50%;background:#3A4360}
+.foot-word{max-width:1220px;margin:36px auto 0;height:.72em;overflow:hidden;font:900 clamp(54px,13vw,184px)/.9 var(--f-display);letter-spacing:-.055em;color:#171D2C;white-space:nowrap;user-select:none}
+.foot-bottom{max-width:1220px;margin:0 auto;padding-top:16px;border-top:1px solid #2A3142;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;font-size:13px;color:#9AA3B8}
+.site-foot .link-btn{color:#E7EAF1}
+@media (max-width:960px){.foot-in{grid-template-columns:1fr 1fr}.foot-brand{grid-column:1/-1}}
+@media (max-width:520px){.foot-in{grid-template-columns:1fr}}
 .fprev{margin:0;padding:8px 12px;border:2px dashed var(--hair);border-radius:10px;font-size:20px;line-height:1.3;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:44px}
 .fprev[data-err]{font:500 13px var(--f-body);color:var(--bad);white-space:normal}
 input[aria-busy="true"]{background-image:linear-gradient(90deg,transparent,var(--accent-soft),transparent);background-size:200% 100%;animation:busy 1s linear infinite}
@@ -253,7 +280,7 @@ input[aria-busy="true"]{background-image:linear-gradient(90deg,transparent,var(-
   .stage,.scan{margin-left:16px;margin-right:16px}
   .stats,.export{padding-left:16px;padding-right:16px}
   .panel{box-shadow:4px 4px 0 var(--shadow)}
-  .top small{display:none}
+  .trust li:not(:first-child){display:none}
   .types{grid-template-columns:repeat(3,minmax(0,1fr))}
   .presets{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
   .preset{padding:6px;font-size:12px}
@@ -267,14 +294,18 @@ input[aria-busy="true"]{background-image:linear-gradient(90deg,transparent,var(-
 <div class="wrap">
   <header class="top">
     <div class="brand"><i aria-hidden="true"><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b></i>QR Forge</div>
-    <small>Free · No sign-up · Nothing leaves your browser</small>
+    <ul class="trust" aria-label="About this tool">
+      <li><svg viewBox="0 0 20 20" aria-hidden="true"><circle class="tick" cx="10" cy="10" r="9"/><path d="M6 10.2l2.6 2.6L14 7.4" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Free forever</li>
+      <li><svg viewBox="0 0 20 20" aria-hidden="true"><circle class="tick" cx="10" cy="10" r="9"/><path d="M6 10.2l2.6 2.6L14 7.4" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>No sign-up</li>
+      <li><svg viewBox="0 0 20 20" aria-hidden="true"><circle class="tick" cx="10" cy="10" r="9"/><path d="M7 9V7.2a3 3 0 0 1 6 0V9M6.2 9h7.6v5.2H6.2z" fill="none" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>Private: nothing leaves your browser</li>
+    </ul>
   </header>
 
   <section class="hero">
     <h1>QR codes that open <em>the right thing.</em></h1>
     <div>
       <p>Links, Wi-Fi, events and contact cards that save straight into the phone, plus print-ready business cards with the QR built in.</p>
-      <div class="feat"><span>9 code types</span><span>7 module shapes</span><span>Logo</span><span>Frames</span><span>PNG · SVG · JPG</span><span>Business cards · print PDF</span></div>
+      <div class="feat"><span>9 code types</span><span>15 presets</span><span>Logo &amp; frames</span><span>PNG, SVG, JPG</span><span>Business cards</span><span>Print-ready PDF</span></div>
     </div>
   </section>
 
@@ -649,8 +680,37 @@ input[aria-busy="true"]{background-image:linear-gradient(90deg,transparent,var(-
     <div class="fact"><h4>Codes that never expire</h4><p>Everything is stored inside the code itself, so it works offline and forever with no server and no tracking. The flip side: a printed code can't be re-pointed. Reprint, or point a Link code at a page you can edit.</p></div>
     <div class="fact"><h4>Print so it scans</h4><p>Follow the size in the scan check. Keep 4 modules of quiet zone, dark code on a light background, and test with two phones before a big print run.</p></div>
   </section>
-  <footer>QR Forge · nothing you type leaves this page</footer>
 </div>
+<footer class="site-foot">
+  <div class="foot-in">
+    <div class="foot-brand">
+      <div class="brand"><i aria-hidden="true"><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b></i>QR Forge</div>
+      <p>Free QR codes and print-ready business cards, made right in your browser. Nothing you type is uploaded or stored on a server.</p>
+      <div class="foot-cta"><button class="btn small primary" data-foot="qr">Make a QR code</button><button class="btn small" data-foot="card">Design a business card</button></div>
+    </div>
+    <nav class="foot-col" aria-label="QR code types"><h5>QR codes</h5><ul>
+      <li><button data-foot="qr:url">Website link</button></li>
+      <li><button data-foot="qr:vcard">Contact card</button></li>
+      <li><button data-foot="qr:wifi">Wi-Fi login</button></li>
+      <li><button data-foot="qr:whatsapp">WhatsApp chat</button></li>
+      <li><button data-foot="qr:event">Calendar event</button></li>
+      <li><button data-foot="qr:location">Map location</button></li>
+    </ul></nav>
+    <div class="foot-col"><h5>Good to know</h5><ul class="plain">
+      <li>Codes never expire and work offline</li>
+      <li>Any phone camera can scan them</li>
+      <li>Print cards at 300 DPI or higher</li>
+      <li>Your designs stay on this device</li>
+    </ul></div>
+    <div class="foot-col"><h5>Project</h5><ul>
+      <li><a href="https://github.com/usmanfiaz06/QR-code-" target="_blank" rel="noopener">Source code on GitHub</a></li>
+      <li><a href="https://fonts.google.com" target="_blank" rel="noopener">Google Fonts</a></li>
+      <li><a href="https://github.com/kazuhikoarase/qrcode-generator" target="_blank" rel="noopener">QR engine (MIT licence)</a></li>
+    </ul></div>
+  </div>
+  <div class="foot-word" aria-hidden="true">QR Forge</div>
+  <div class="foot-bottom"><span>© 2026 QR Forge · Made for printing, sharing and scanning</span><button class="link-btn" data-foot="top">Back to top ↑</button></div>
+</footer>
 
 <div class="mbar" id="mbar">
   <img id="mbar-img" alt="">
@@ -741,7 +801,7 @@ const LISTS={
 const SHAPES=[['square','Square'],['rounded','Rounded'],['soft','Soft'],['dots','Dots'],['diamond','Diamond'],['vbars','Columns'],['hbars','Rows']];
 const EYEF=[['square','Square'],['rounded','Rounded'],['circle','Circle'],['leaf','Leaf']];
 const EYEB=[['square','Square'],['rounded','Rounded'],['circle','Circle'],['leaf','Leaf'],['diamond','Diamond']];
-const FRAMES=[['none','None'],['bottom','Banner below'],['top','Banner above'],['outline','Outline']];
+const FRAMES=[['none','None'],['bottom','Banner below'],['top','Banner above'],['outline','Outline'],['corners','Viewfinder'],['pill','Pill label']];
 const FTEXTS=['SCAN ME','SAVE MY CONTACT','JOIN OUR WI-FI','VIEW THE MENU','CHAT WITH US','RSVP'];
 const QUICK=['#0B0F1A','#1F3BFF','#0A6AA6','#0E7C66','#C0261B','#E2561B','#7A2BD9','#B4235F','#5A3E1B','#3D4352'];
 const PRESETS=[
@@ -753,7 +813,13 @@ const PRESETS=[
   {name:'Grape',s:{shape:'diamond',eyeFrame:'rounded',eyeBall:'diamond',fill:'radial',fg:'#7A2BD9',fg2:'#1F1147',bg:'#FFFFFF',eyeCustom:false}},
   {name:'Columns',s:{shape:'vbars',eyeFrame:'square',eyeBall:'square',fill:'solid',fg:'#111111',bg:'#FFFFFF',eyeCustom:false}},
   {name:'Highlighter',s:{shape:'rounded',eyeFrame:'circle',eyeBall:'circle',fill:'solid',fg:'#0B0F1A',bg:'#FFC629',eyeCustom:false}},
-  {name:'Ember',s:{shape:'hbars',eyeFrame:'leaf',eyeBall:'circle',fill:'linear',fg:'#A61E14',fg2:'#0B0F1A',dir:'right',bg:'#FFFFFF',eyeCustom:false}}
+  {name:'Ember',s:{shape:'hbars',eyeFrame:'leaf',eyeBall:'circle',fill:'linear',fg:'#A61E14',fg2:'#0B0F1A',dir:'right',bg:'#FFFFFF',eyeCustom:false}},
+  {name:'Mint',s:{shape:'dots',eyeFrame:'rounded',eyeBall:'circle',fill:'solid',fg:'#0B5345',bg:'#EAF7F2',eyeCustom:true,eyeFrameColor:'#0E8A6A',eyeBallColor:'#0B5345'}},
+  {name:'Midnight',s:{shape:'rounded',eyeFrame:'circle',eyeBall:'circle',fill:'radial',fg:'#2A3A8C',fg2:'#0B0F2E',bg:'#FFFFFF',eyeCustom:false}},
+  {name:'Tropic',s:{shape:'soft',eyeFrame:'leaf',eyeBall:'leaf',fill:'linear',fg:'#0B6E78',fg2:'#1B7A36',dir:'diag',bg:'#FFFFFF',eyeCustom:false}},
+  {name:'Coral',s:{shape:'vbars',eyeFrame:'rounded',eyeBall:'rounded',fill:'solid',fg:'#9E2F24',bg:'#FFF4F0',eyeCustom:true,eyeFrameColor:'#9E2F24',eyeBallColor:'#3A1A16'}},
+  {name:'Blueprint',s:{shape:'square',eyeFrame:'square',eyeBall:'diamond',fill:'solid',fg:'#0B2C6B',bg:'#EEF3FF',eyeCustom:true,eyeFrameColor:'#1F3BFF',eyeBallColor:'#0B2C6B'}},
+  {name:'Royal',s:{shape:'diamond',eyeFrame:'leaf',eyeBall:'circle',fill:'linear',fg:'#4B1D8F',fg2:'#9E1F57',dir:'right',bg:'#FFFFFF',eyeCustom:false}}
 ];
 
 /* ================= payload ================= */
@@ -927,9 +993,27 @@ function build(s,logoImg){
     fs=Math.min(fs,(W*.84)/w100);
     const cy=f==='top'?L/2+b*.2:(f==='outline'?t+2*b+L*.42:t+b+(L-b)/2+b*.5);
     label={text:txt,x:W/2,y:cy,fs,b,L};
+  } else if(f==='corners'){
+    const b=2.4, L=txt?Math.max(5.5,t*.17):0;
+    W=t+2*b; H=t+2*b+L; qx=b; qy=b;
+    if(txt){ mctx.font=`800 100px ${frameFont(st)}`; const w100=Math.max(1,mctx.measureText(txt).width)/100*1.04;
+      label={text:txt,x:W/2,y:t+2*b+L*.45,fs:Math.min(L*.5,(W*.84)/w100),b,L}; }
+  } else if(f==='pill'&&txt){
+    mctx.font=`800 100px ${frameFont(st)}`; const w100=Math.max(1,mctx.measureText(txt).width)/100*1.04;
+    let fs=Math.max(3.2,t*.07), tw=w100*fs; if(tw>t*.74){ fs*=t*.74/tw; tw=t*.74; }
+    const ph=fs*2.2, pw=tw+fs*2.4;
+    W=t; H=t+ph/2+.4;
+    label={text:txt,x:W/2,y:t,fs,pill:{x:(W-pw)/2,y:t-ph/2,w:pw,h:ph}};
   }
   return {payload,qr,n,m,t,W,H,qx,qy,mods,frames,balls,box,label,ecc,frame:f};
 }
+function bracketsPath(W,H,len,th){
+  const r=[th/2,th/2,th/2,th/2]; let d='';
+  [[0,0,1,1],[W,0,-1,1],[0,H,1,-1],[W,H,-1,-1]].forEach(([x,y,sx,sy])=>{
+    d+=rr(sx>0?x:x-len,sy>0?y:y-th,len,th,r)+rr(sx>0?x:x-th,sy>0?y:y-len,th,len,r); });
+  return d;
+}
+const labelColor=(M,st)=>(M.frame==='outline'||M.frame==='corners')?st.frameColor:st.frameTextColor;
 function fillSpec(st,n){
   if(st.fill==='solid') return st.fg;
   if(st.fill==='radial') return {type:'radial',cx:n/2,cy:n/2,r:n*.72,c1:st.fg,c2:st.fg2};
@@ -953,6 +1037,11 @@ function renderCanvas(M,s,logoImg,px,solidBg){
   } else if(M.frame==='outline'){
     if(!transparent){ ctx.fillStyle=bg; ctx.fill(new Path2D(rr(0,0,M.W,M.H,[2.6,2.6,2.6,2.6]))); }
     ctx.fillStyle=st.frameColor; ctx.fill(new Path2D(rr(0,0,M.W,M.t+2*M.label.b,[2.6,2.6,2.6,2.6])+rr(.7,.7,M.W-1.4,M.t+2*M.label.b-1.4,[2,2,2,2])),'evenodd');
+  } else if(M.frame==='corners'){
+    if(!transparent){ ctx.fillStyle=bg; ctx.fill(new Path2D(rr(0,0,M.W,M.H,[2,2,2,2]))); }
+    ctx.fillStyle=st.frameColor; ctx.fill(new Path2D(bracketsPath(M.W,M.t+4.8,M.t*.17,.9)));
+  } else if(M.frame==='pill'&&M.label){
+    if(!transparent){ ctx.fillStyle=bg; ctx.fill(new Path2D(rr(0,0,M.t,M.t,[1.6,1.6,1.6,1.6]))); }
   } else if(!transparent){ ctx.fillStyle=bg; ctx.fillRect(0,0,M.W,M.H); }
   ctx.save(); ctx.translate(M.qx+M.m,M.qy+M.m);
   const main=cpaint(ctx,fillSpec(st,M.n));
@@ -965,8 +1054,9 @@ function renderCanvas(M,s,logoImg,px,solidBg){
     let w=sz,h=sz; if(ar>1) h=sz/ar; else w=sz*ar;
     ctx.drawImage(logoImg,b.x+p+(sz-w)/2,b.y+p+(sz-h)/2,w,h); }
   ctx.restore();
+  if(M.label&&M.label.pill){ const p=M.label.pill; ctx.fillStyle=st.frameColor; ctx.fill(new Path2D(rr(p.x,p.y,p.w,p.h,Array(4).fill(p.h/2)))); }
   if(M.label&&M.label.text){ const L=M.label;
-    ctx.fillStyle=M.frame==='outline'?st.frameColor:st.frameTextColor; ctx.font=`800 ${L.fs}px ${frameFont(st)}`; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillStyle=labelColor(M,st); ctx.font=`800 ${L.fs}px ${frameFont(st)}`; ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillText(L.text,L.x,L.y); }
   return cv;
 }
@@ -983,6 +1073,11 @@ function renderSVG(M,s,logoData,px){
   } else if(M.frame==='outline'){
     if(!st.transparent) out.push(`<path d="${rr(0,0,M.W,M.H,[2.6,2.6,2.6,2.6])}" fill="${st.bg}"/>`);
     out.push(`<path fill-rule="evenodd" d="${rr(0,0,M.W,M.t+2*M.label.b,[2.6,2.6,2.6,2.6])+rr(.7,.7,M.W-1.4,M.t+2*M.label.b-1.4,[2,2,2,2])}" fill="${st.frameColor}"/>`);
+  } else if(M.frame==='corners'){
+    if(!st.transparent) out.push(`<path d="${rr(0,0,M.W,M.H,[2,2,2,2])}" fill="${st.bg}"/>`);
+    out.push(`<path d="${bracketsPath(M.W,M.t+4.8,M.t*.17,.9)}" fill="${st.frameColor}"/>`);
+  } else if(M.frame==='pill'&&M.label){
+    if(!st.transparent) out.push(`<path d="${rr(0,0,M.t,M.t,[1.6,1.6,1.6,1.6])}" fill="${st.bg}"/>`);
   } else if(!st.transparent) out.push(`<rect width="${M.W}" height="${M.H}" fill="${st.bg}"/>`);
   out.push(`<g transform="translate(${M.qx+M.m} ${M.qy+M.m})">`);
   if(defs.length) out.push(`<defs>${defs.join('')}</defs>`);
@@ -991,8 +1086,9 @@ function renderSVG(M,s,logoData,px){
     if(st.logoPlate) out.push(`<path d="${rr(b.x-.3,b.y-.3,b.s+.6,b.s+.6,Array(4).fill(b.s*.2))}" fill="#FFFFFF"/>`);
     out.push(`<image href="${logoData}" x="${b.x+pd}" y="${b.y+pd}" width="${b.s-2*pd}" height="${b.s-2*pd}" preserveAspectRatio="xMidYMid meet"/>`); }
   out.push('</g>');
+  if(M.label&&M.label.pill){ const p=M.label.pill; out.push(`<path d="${rr(p.x,p.y,p.w,p.h,Array(4).fill(p.h/2))}" fill="${st.frameColor}"/>`); }
   if(M.label&&M.label.text){ const L=M.label;
-    out.push(`<text x="${L.x}" y="${L.y}" font-family='${xesc(st.frameFont||'Figtree')}, Arial, sans-serif' font-weight="800" font-size="${L.fs}" text-anchor="middle" dominant-baseline="central" fill="${M.frame==='outline'?st.frameColor:st.frameTextColor}">${xesc(L.text)}</text>`); }
+    out.push(`<text x="${L.x}" y="${L.y}" font-family='${xesc(st.frameFont||'Figtree')}, Arial, sans-serif' font-weight="800" font-size="${L.fs}" text-anchor="middle" dominant-baseline="central" fill="${labelColor(M,st)}">${xesc(L.text)}</text>`); }
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${M.W} ${M.H}" width="${Math.round(M.W*sc)}" height="${Math.round(M.H*sc)}">${out.join('')}</svg>`;
 }
 
@@ -1033,6 +1129,8 @@ function tileSVG(kind,val){
   if(kind==='frame'){ const q='<rect x="7" y="7" width="10" height="10" rx="1" opacity=".35"/>';
     if(val==='none') return `<svg viewBox="0 0 24 24">${q}</svg>`;
     if(val==='outline') return `<svg viewBox="0 0 24 24"><path fill-rule="evenodd" d="M4 2h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM4 3.5a.5.5 0 0 0-.5.5v14a.5.5 0 0 0 .5.5h16a.5.5 0 0 0 .5-.5V4a.5.5 0 0 0-.5-.5z" transform="translate(0 -1.5)"/><rect x="7" y="4" width="10" height="10" rx="1" opacity=".35"/><rect x="6" y="20" width="12" height="2" rx="1"/></svg>`;
+    if(val==='corners') return `<svg viewBox="0 0 24 24"><path d="M2 7V3.5A1.5 1.5 0 0 1 3.5 2H7M17 2h3.5A1.5 1.5 0 0 1 22 3.5V7M2 15v3.5A1.5 1.5 0 0 0 3.5 20H7M17 20h3.5a1.5 1.5 0 0 0 1.5-1.5V15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="6.5" y="6" width="11" height="10" rx="1" opacity=".35"/><rect x="7" y="21.6" width="10" height="1.6" rx=".8"/></svg>`;
+    if(val==='pill') return `<svg viewBox="0 0 24 24"><rect x="3" y="1.5" width="18" height="18" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".6"/><rect x="7" y="5" width="10" height="10" rx="1" opacity=".35"/><rect x="5" y="16.5" width="14" height="6" rx="3"/><rect x="8" y="19" width="8" height="1.1" rx=".5" fill="#fff"/></svg>`;
     const top=val==='top'; return `<svg viewBox="0 0 24 24"><rect x="3" y="1" width="18" height="22" rx="3"/><rect x="5" y="${top?8:3}" width="14" height="13" rx="1.5" fill="#fff"/><rect x="8" y="${top?11:6}" width="8" height="7" rx="1" opacity=".35"/><rect x="7" y="${top?3.5:18.5}" width="10" height="2" rx="1" fill="#fff"/></svg>`; }
 }
 [['shape',SHAPES],['eyeFrame',EYEF],['eyeBall',EYEB],['frame',FRAMES]].forEach(([k,list])=>{
@@ -1105,7 +1203,7 @@ function refreshDesignUI(){
   $('#logo-opts').hidden=!logoImg;
   const lt=$('#lthumb'); if(logoData&&logoImg){ lt.style.backgroundImage=`url("${logoData}")`; lt.textContent=''; $('#drop-t').textContent='Replace logo'; $('#drop-s').textContent='Drop a new image here or click to choose another file.'; }
   else { lt.style.backgroundImage=''; lt.textContent='+'; $('#drop-t').textContent='Drop your logo here or click to upload'; $('#drop-s').textContent='PNG, JPG or SVG. A square logo with a transparent background looks best.'; }
-  $('#frame-opts').hidden=st.frame==='none'; if(!$('#s-ffont-prev').dataset.err) framePrev(); $('#f-ftc').hidden=st.frame==='outline';
+  $('#frame-opts').hidden=st.frame==='none'; if(!$('#s-ffont-prev').dataset.err) framePrev(); $('#f-ftc').hidden=st.frame==='outline'||st.frame==='corners';
   $('#sms-field').hidden=S.phone.mode!=='sms';
   $$('.dtab').forEach(b=>b.setAttribute('aria-selected',b.dataset.dtab===dtab));
   $$('[data-dpane]').forEach(p=>p.hidden=p.dataset.dpane!==dtab);
@@ -1313,7 +1411,7 @@ async function prepCard(){
     ...[400,500,700,800].map(w=>document.fonts?document.fonts.load(`${w} 20px ${lf}`).catch(()=>{}):0),
     ...[400,700].map(w=>document.fonts?document.fonts.load(`${w} 20px ${af}`,'عربي').catch(()=>{}):0)]);
 }
-let RK=10;
+let RK=10, RB=0;
 const CICON={
   phone:new Path2D('M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2'),
   mail:new Path2D('M4.5 5h15A1.5 1.5 0 0 1 21 6.5v11a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5v-11A1.5 1.5 0 0 1 4.5 5zM3.5 6.2l8.5 6.6 8.5-6.6'),
@@ -1321,7 +1419,7 @@ const CICON={
   pin:new Path2D('M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11zM9.5 10a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0 -5 0')
 };
 function ctext(ctx,str,x,y,o){
-  if(!str) return; let s=o.size; const kind=o.kind||'en', track=o.track||0;
+  if(!str) return 0; let s=o.size; const kind=o.kind||'en', track=o.track||0;
   const meas=()=>{ ctx.font=cfont(kind,o.weight||400,s); ctx.direction=kind==='ar'?'rtl':'ltr';
     if(!track||kind==='ar') return ctx.measureText(str).width;
     let w=0; for(const ch of str) w+=ctx.measureText(ch).width; return w+track*s*(str.length-1); };
@@ -1330,6 +1428,7 @@ function ctext(ctx,str,x,y,o){
   if(track&&kind!=='ar'){ let cx=o.align==='center'?x-w/2:o.align==='right'?x-w:x; ctx.textAlign='left';
     for(const ch of str){ ctx.fillText(ch,cx,y); cx+=ctx.measureText(ch).width+track*s; } }
   else { ctx.textAlign=o.align||'left'; ctx.fillText(str,x,y); }
+  return w;
 }
 function tinted(im,wPx,hPx,color){
   const c=document.createElement('canvas'); c.width=Math.max(1,Math.round(wPx)); c.height=Math.max(1,Math.round(hPx));
@@ -1341,6 +1440,12 @@ function drawLogo(ctx,im,cx,cy,bw,bh,color){
   const ar=(im.naturalWidth||im.width)/(im.naturalHeight||im.height)||1; let w=bw,h=bw/ar; if(h>bh){h=bh;w=bh*ar;}
   ctx.drawImage(tinted(im,w*RK,h*RK,color),cx-w/2,cy-h/2,w,h);
 }
+function drawLogoLeft(ctx,im,x,cy,bw,bh,color){
+  const ar=(im.naturalWidth||im.width)/(im.naturalHeight||im.height)||1; let w=bw,h=bw/ar; if(h>bh){h=bh;w=bh*ar;}
+  ctx.drawImage(tinted(im,w*RK,h*RK,color),x,cy-h/2,w,h);
+}
+function contactIcon(ctx,icon,x,cy,size,color){ ctx.save(); ctx.translate(x,cy-size/2); ctx.scale(size/24,size/24); ctx.strokeStyle=color; ctx.lineWidth=1.5; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.stroke(CICON[icon]); ctx.restore(); }
+const contactRows=()=>[['phone',C.phone],['mail',C.email],['globe',C.website],['pin',C.address]].filter(r=>r[1]&&r[1].trim());
 function darker(a,b){ return lum(a)<=lum(b)?a:b; }
 function lighter(a,b){ return lum(a)>lum(b)?a:b; }
 function cardVCard(){
@@ -1400,6 +1505,35 @@ function drawFront(ctx,W,H){
     if(logo) drawLogo(ctx,logo,rx,qs?Y(.25):Y(.5),X(.26),qs?Y(.26):Y(.5),C.tintLogo?ink:null); else wordmark(ctx,rx,qs?Y(.25):Y(.5),X(.3),F(44),ink);
     if(qs){ const s=Math.min(X(.2),Y(.42)); drawCardQR(ctx,rx-s/2,Y(.69)-s/2,s); }
     drawStack(ctx,W,H,X(.07),X(.63),Y(.5));
+  } else if(C.template==='band'){
+    const bw=X(.32), tag=C.tagAr.trim()||C.tagEn.trim();
+    ctx.fillStyle=ink; ctx.fillRect(-RB,-RB,bw+RB,H+2*RB);
+    if(logo) drawLogo(ctx,logo,bw/2,tag?Y(.4):Y(.5),bw*.62,Y(.4),C.bg); else wordmark(ctx,bw/2,tag?Y(.4):Y(.5),bw*.8,F(46),C.bg);
+    ctext(ctx,C.tagAr.trim(),bw/2,Y(.74),{kind:'ar',weight:400,size:F(42),color:C.bg,align:'center',max:bw*.8});
+    ctext(ctx,C.tagEn.trim(),bw/2,Y(C.tagAr.trim()?.82:.76),{kind:'en',weight:500,size:F(32),color:C.bg,align:'center',max:bw*.84,track:.09});
+    const s=Math.min(X(.2),Y(.38)), qx=X(.955)-s;
+    const has=C.qrShow&&drawCardQR(ctx,qx,Y(.5)-s/2,s);
+    drawStack(ctx,W,H,X(.37),has?qx-X(.035):X(.94),Y(.5));
+  } else if(C.template==='bold'){
+    const barH=Y(.075), x0=X(.07); ctx.fillStyle=ink; ctx.fillRect(-RB,H-barH,W+2*RB,barH+RB);
+    if(logo) drawLogo(ctx,logo,X(.86),Y(.2),X(.17),Y(.2),C.tintLogo?ink:null);
+    const nameR=logo?X(.74):X(.93);
+    ctext(ctx,C.nameEn.trim(),x0,Y(.27),{kind:'en',weight:800,size:F(92),color:ink,max:nameR-x0});
+    ctext(ctx,C.nameAr.trim(),x0,Y(.385),{kind:'ar',weight:700,size:F(50),color:ink,max:nameR-x0});
+    const tw=ctext(ctx,C.titleEn.trim(),x0,Y(.485),{kind:'en',weight:500,size:F(38),color:ink,max:X(.5)});
+    if(C.titleAr.trim()) ctext(ctx,C.titleAr.trim(),tw?x0+tw+F(30):x0,Y(.485),{kind:'ar',weight:400,size:F(38),color:ink,max:X(.4)});
+    ctx.fillStyle=ink; ctx.fillRect(x0,Y(.54),X(.06),V(5));
+    const s=Math.min(X(.2),Y(.36)), qx=X(.95)-s, has=C.qrShow&&drawCardQR(ctx,qx,Y(.875)-s,s);
+    const right=has?qx-X(.03):X(.93);
+    contactRows().forEach((r,i)=>{ const y=Y(.655)+i*V(64), sz=F(33);
+      contactIcon(ctx,r[0],x0,y-sz*.36,F(44),ink); ctext(ctx,r[1].trim(),x0+F(64),y,{kind:'en',weight:400,size:sz,color:ink,max:right-x0-F(64)}); });
+  } else if(C.template==='arc'){
+    const cx=W+X(.03), cy=H+Y(.08);
+    ctx.fillStyle=ink; ctx.beginPath(); ctx.arc(cx,cy,Y(.72),0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle=ink; ctx.lineWidth=V(3); ctx.beginPath(); ctx.arc(cx,cy,Y(.83),0,Math.PI*2); ctx.stroke();
+    if(logo) drawLogoLeft(ctx,logo,X(.07),Y(.17),X(.24),Y(.17),C.tintLogo?ink:null); else ctext(ctx,C.company||C.nameEn,X(.07),Y(.2),{kind:'en',weight:800,size:F(44),color:ink,max:X(.5)});
+    const s=Math.min(X(.18),Y(.32)); C.qrShow&&drawCardQR(ctx,X(.95)-s,Y(.9)-s,s);
+    drawStack(ctx,W,H,X(.07),X(.58),Y(.63));
   } else {
     const s=Math.min(X(.239),Y(.42)), qx=X(.93)-s;
     const has=C.qrShow&&drawCardQR(ctx,qx,Y(.5)-s/2,s);
@@ -1416,17 +1550,38 @@ function drawBack(ctx,W,H){
     ctext(ctx,cap[1],W/2,Y(.91),{kind:'ar',weight:400,size:F(34),color:C.ink,align:'center',max:X(.8)});
     return;
   }
-  const col=C.back==='brand'?C.bg:C.ink, tag=C.tagAr.trim()||C.tagEn.trim();
+  if(C.back==='split'){
+    const tag=C.tagAr.trim()||C.tagEn.trim(), q=W/4;
+    ctx.fillStyle=C.ink; ctx.fillRect(-RB,-RB,W/2+RB,H+2*RB);
+    if(logo) drawLogo(ctx,logo,q,tag?Y(.4):Y(.5),X(.3),Y(.42),C.bg); else wordmark(ctx,q,tag?Y(.4):Y(.5),X(.4),F(48),C.bg);
+    ctext(ctx,C.tagAr.trim(),q,Y(.76),{kind:'ar',weight:400,size:F(40),color:C.bg,align:'center',max:X(.4)});
+    ctext(ctx,C.tagEn.trim(),q,Y(C.tagAr.trim()?.84:.78),{kind:'en',weight:500,size:F(30),color:C.bg,align:'center',max:X(.42),track:.09});
+    const s=Y(.5);
+    if(drawCardQR(ctx,3*q-s/2,Y(.42)-s/2,s)){ const cap=QRCAP[C.qrSource]||QRCAP.vcard;
+      ctext(ctx,cap[0],3*q,Y(.81),{kind:'en',weight:700,size:F(30),color:C.ink,align:'center',max:X(.42)});
+      ctext(ctx,cap[1],3*q,Y(.89),{kind:'ar',weight:400,size:F(28),color:C.ink,align:'center',max:X(.42)}); }
+    else ctext(ctx,C.website.trim(),3*q,Y(.52),{kind:'en',weight:700,size:F(40),color:C.ink,align:'center',max:X(.42)});
+    return;
+  }
+  if(C.back==='pattern'){
+    const mk=IMGS[C.mark]||IMGS[C.logo];
+    if(mk){ const ar=(mk.naturalWidth||mk.width)/(mk.naturalHeight||mk.height)||1, sh=Y(.12), sw=sh*ar, step=Math.max(sw,sh)*2.1;
+      const bm=tinted(mk,sw*RK,sh*RK,C.bg); ctx.save(); ctx.globalAlpha=.1;
+      for(let r=0,y=-step/2;y<H+step;y+=step*.8,r++) for(let x=(r%2?step/2:0)-step;x<W+step;x+=step){
+        if(Math.abs(x-W/2)<X(.25)&&Math.abs(y-H/2)<Y(.4)) continue; ctx.drawImage(bm,x-sw/2,y-sh/2,sw,sh); }
+      ctx.restore(); }
+  }
+  const col=(C.back==='brand'||C.back==='pattern')?C.bg:C.ink, tag=C.tagAr.trim()||C.tagEn.trim();
   const cy=tag?Y(.42):Y(.5);
-  if(logo) drawLogo(ctx,logo,W/2,cy,X(.34),tag?Y(.44):Y(.52),C.back==='brand'||C.tintLogo?col:null); else wordmark(ctx,W/2,cy,X(.7),F(70),col);
+  if(logo) drawLogo(ctx,logo,W/2,cy,X(.34),tag?Y(.44):Y(.52),C.back!=='light'||C.tintLogo?col:null); else wordmark(ctx,W/2,cy,X(.7),F(70),col);
   ctext(ctx,C.tagAr.trim(),W/2,Y(.77),{kind:'ar',weight:400,size:F(46),color:col,align:'center',max:X(.6)});
   ctext(ctx,C.tagEn.trim(),W/2,Y(C.tagAr.trim()?.85:.79),{kind:'en',weight:500,size:F(36),color:col,align:'center',max:X(.6),track:.09});
 }
 function renderCard(side,k,o={}){
-  const {w,h}=SIZES[C.size], b=o.bleed||0; RK=k;
+  const {w,h}=SIZES[C.size], b=o.bleed||0; RK=k; RB=b;
   const cv=document.createElement('canvas'); cv.width=Math.round((w+2*b)*k); cv.height=Math.round((h+2*b)*k);
   const ctx=cv.getContext('2d'); ctx.scale(k,k); ctx.translate(b,b);
-  const dark=side==='back'&&C.back==='brand';
+  const dark=side==='back'&&(C.back==='brand'||C.back==='pattern');
   ctx.fillStyle=dark?C.ink:C.bg; ctx.fillRect(-b,-b,w+2*b,h+2*b);
   side==='front'?drawFront(ctx,w,h):drawBack(ctx,w,h);
   if(o.guides){ ctx.save(); ctx.setLineDash([1.2,.9]); ctx.lineWidth=.2; ctx.strokeStyle=dark?'rgba(255,255,255,.6)':'rgba(31,59,255,.7)'; ctx.strokeRect(3,3,w-6,h-6); ctx.restore(); }
@@ -1436,10 +1591,15 @@ function renderCard(side,k,o={}){
 /* ---- card UI ---- */
 const TPL=[['split','Split','<rect x=".75" y=".75" width="34.5" height="20.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="7" cy="8.5" r="2.6"/><rect x="4" y="13" width="6" height="1.2" rx=".6"/><rect x="12.2" y="4" width=".7" height="14"/><rect x="15" y="5.5" width="9" height="1.8" rx=".9"/><rect x="15" y="8.8" width="7" height="1.2" rx=".6"/><rect x="15" y="11.6" width="9" height=".5"/><rect x="15" y="13.6" width="7" height=".9" rx=".45"/><rect x="15" y="15.8" width="6" height=".9" rx=".45"/><rect x="26" y="7.5" width="7" height="7" rx=".8"/>'],
   ['stacked','Stacked','<rect x=".75" y=".75" width="34.5" height="20.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/><rect x="4" y="5" width="11" height="1.8" rx=".9"/><rect x="4" y="8.4" width="8" height="1.2" rx=".6"/><rect x="4" y="11.6" width="14" height=".5"/><rect x="4" y="13.6" width="9" height=".9" rx=".45"/><rect x="4" y="15.8" width="8" height=".9" rx=".45"/><circle cx="29" cy="6" r="2.4"/><rect x="25.5" y="10.5" width="7" height="7" rx=".8"/>'],
+  ['band','Band','<rect x=".75" y=".75" width="34.5" height="20.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M.75 2.25a1.5 1.5 0 0 1 1.5-1.5H12v20.5H2.25a1.5 1.5 0 0 1-1.5-1.5z"/><circle cx="6.4" cy="9" r="2.4" fill="#fff"/><rect x="3.6" y="13" width="5.6" height="1" rx=".5" fill="#fff"/><rect x="14.5" y="5.5" width="8" height="1.8" rx=".9"/><rect x="14.5" y="8.8" width="6" height="1.2" rx=".6"/><rect x="14.5" y="12.6" width="7" height=".9" rx=".45"/><rect x="14.5" y="15" width="6" height=".9" rx=".45"/><rect x="26" y="7.5" width="7" height="7" rx=".8"/>'],
+  ['bold','Bold','<rect x=".75" y=".75" width="34.5" height="20.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/><rect x="3.5" y="3.5" width="17" height="3.4" rx="1"/><rect x="3.5" y="8.3" width="9" height="1.3" rx=".6"/><rect x="3.5" y="10.6" width="3" height=".8"/><rect x="3.5" y="12.6" width="8" height=".9" rx=".45"/><rect x="3.5" y="14.6" width="7" height=".9" rx=".45"/><rect x=".75" y="18.4" width="34.5" height="2.85"/><circle cx="30.5" cy="5" r="1.7"/><rect x="26.5" y="9.5" width="7" height="7" rx=".8"/>'],
+  ['arc','Arc','<rect x=".75" y=".75" width="34.5" height="20.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M35.25 6A17 17 0 0 0 16.5 21.25h17.25a1.5 1.5 0 0 0 1.5-1.5z"/><rect x="26" y="11" width="7" height="7" rx=".8" fill="#fff"/><circle cx="5.5" cy="4.6" r="1.8"/><rect x="3.5" y="8.5" width="10" height="1.6" rx=".8"/><rect x="3.5" y="11.4" width="7" height="1.1" rx=".55"/><rect x="3.5" y="14" width="8" height=".9" rx=".45"/><rect x="3.5" y="16.2" width="7" height=".9" rx=".45"/>'],
   ['minimal','Minimal','<rect x=".75" y=".75" width="34.5" height="20.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/><rect x="4" y="5.5" width="11" height="1.8" rx=".9"/><rect x="4" y="8.8" width="8" height="1.2" rx=".6"/><rect x="4" y="11.8" width="13" height=".5"/><rect x="4" y="13.8" width="9" height=".9" rx=".45"/><rect x="4" y="16" width="8" height=".9" rx=".45"/><rect x="24" y="6.5" width="8.5" height="8.5" rx=".8"/>']];
 const BACKS=[['brand','Brand colour','<rect x=".5" y=".5" width="35" height="21" rx="1.5"/><circle cx="18" cy="9" r="3.4" fill="#fff"/><rect x="13" y="15" width="10" height="1.2" rx=".6" fill="#fff"/>'],
   ['light','Logo on card','<rect x=".75" y=".75" width="34.5" height="20.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="18" cy="9" r="3.4"/><rect x="13" y="15" width="10" height="1.2" rx=".6"/>'],
   ['qr','Big QR','<rect x=".75" y=".75" width="34.5" height="20.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/><rect x="13.5" y="3.5" width="9" height="9" rx=".8"/><rect x="11" y="15" width="14" height="1.2" rx=".6"/><rect x="13" y="17.4" width="10" height=".9" rx=".45"/>'],
+  ['pattern','Pattern','<rect x=".5" y=".5" width="35" height="21" rx="1.5"/><g fill="#fff" opacity=".35"><circle cx="4" cy="4" r="1.2"/><circle cx="11" cy="4" r="1.2"/><circle cx="25" cy="4" r="1.2"/><circle cx="32" cy="4" r="1.2"/><circle cx="7.5" cy="11" r="1.2"/><circle cx="28.5" cy="11" r="1.2"/><circle cx="4" cy="18" r="1.2"/><circle cx="11" cy="18" r="1.2"/><circle cx="25" cy="18" r="1.2"/><circle cx="32" cy="18" r="1.2"/></g><circle cx="18" cy="9.5" r="3.2" fill="#fff"/><rect x="14" y="15" width="8" height="1.1" rx=".55" fill="#fff"/>'],
+  ['split','Logo + QR','<rect x=".75" y=".75" width="34.5" height="20.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M.75 2.25a1.5 1.5 0 0 1 1.5-1.5H18v20.5H2.25a1.5 1.5 0 0 1-1.5-1.5z"/><circle cx="9.4" cy="9" r="3" fill="#fff"/><rect x="5.5" y="14.5" width="8" height="1.1" rx=".55" fill="#fff"/><rect x="22.5" y="5" width="9" height="9" rx=".8"/><rect x="22" y="16" width="10" height="1" rx=".5"/>'],
   ['none','No back','<rect x=".75" y=".75" width="34.5" height="20.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M6 17L30 5" stroke="currentColor" stroke-width="1.2"/>']];
 const CPAL=[['#F2ECE2','#1E352D','Sage'],['#FFFFFF','#0B0F1A','Ink'],['#0E2A47','#F4EFE6','Navy'],['#EFE6D8','#5A3E1B','Sand'],['#111111','#D9B46A','Gold'],['#FFFFFF','#1F3BFF','Cobalt']];
 $('#ct-template').innerHTML=TPL.map(([v,l,s])=>`<button class="tile ctile" data-cset="template" data-val="${v}" aria-pressed="false"><svg viewBox="0 0 36 22">${s}</svg><span>${l}</span></button>`).join('');
@@ -1509,6 +1669,9 @@ document.addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b
   else if(d.cpal){ const [a,c]=d.cpal.split(','); C.bg=a; C.ink=c; syncCardColor('bg'); syncCardColor('ink'); cardUpdate(); }
   else if(d.brand){ if(d.brand==='mine'&&myBrand) applyBrand(myBrand,myBrand.company||'Your'); else { const br=BRANDS.find(x=>x.id===d.brand); if(br) applyBrand(br.data,br.name); } }
   else if(d.mode){ setMode(d.mode); }
+  else if(d.foot){ if(d.foot==='top'){ window.scrollTo({top:0}); return; }
+    const [m,t]=d.foot.split(':'); setMode(m); if(t) setType(t);
+    (m==='card'?$('#card-bench'):$('#qr-bench')).scrollIntoView({block:'start'}); }
 });
 $('#brand-save').onclick=()=>{ const br={}; Object.keys(CARD_DEFAULT).forEach(k=>{ if(!PERSON.includes(k)&&k!=='example') br[k]=C[k]; });
   myBrand=br; if(!store.set(CKEY+'.brand',JSON.stringify(br))){ toast('Browser storage is full or blocked, so the brand wasn\'t saved.'); return; }
